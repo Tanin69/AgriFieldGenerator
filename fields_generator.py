@@ -7,13 +7,14 @@ import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import networkx as nx
 import pickle
 import datetime
 from random import choice, uniform
 from PIL import Image
 
-def svg_file_to_polygon(svg_file, num_points=20, plot=False, mirror=False):
+def svg_file_to_polygon(svg_file, svg_height, svg_width, num_points=50, debug=False):
     dom = parse(svg_file)
     path_strings = [path.getAttribute('d') for path in dom.getElementsByTagName('path')]
     
@@ -24,16 +25,16 @@ def svg_file_to_polygon(svg_file, num_points=20, plot=False, mirror=False):
         for command in path:
             if isinstance(command, Line) or isinstance(command, CubicBezier):
                 if isinstance(command, Line):
-                    points.append((command.end.real, -command.end.imag if mirror else command.end.imag))
+                    points.append((command.end.real, svg_height - command.end.imag))
                 else:  # CubicBezier
                     for t in np.linspace(0, 1, num=num_points):
                         point = command.point(t)
-                        points.append((point.real, -point.imag if mirror else point.imag))
+                        points.append((point.real, svg_height - point.imag))
             elif isinstance(command, Move):
                 if points and len(points) >= 4:  # Ensure there are at least 4 points
                     polygons.append(Polygon(points))
                     points = []  # Start a new polygon
-                points.append((command.start.real, -command.start.imag if mirror else command.start.imag))
+                points.append((command.start.real, svg_height - command.start.imag))
 
         if points and len(points) >= 4:  # Add the last polygon if it has at least 4 points
             polygons.append(Polygon(points))
@@ -41,21 +42,23 @@ def svg_file_to_polygon(svg_file, num_points=20, plot=False, mirror=False):
     # Create a MultiPolygon from all the polygons
     multi_polygon = MultiPolygon(polygons)
 
-    # Plot the polygons if requested
-    if plot:
+    # Plot the polygons if on debug mode
+    if debug:
         fig, ax = plt.subplots()
+        ax.set_ylim(0, svg_height)  # Set the y-axis limits to match the SVG height
+        ax.set_xlim(0, svg_width)  # Set the x-axis limits to a fixed value
         if isinstance(multi_polygon, MultiPolygon):
             for polygon in multi_polygon.geoms:
                 x, y = polygon.exterior.xy
-                ax.plot(x, y)
+                ax.plot(x, y, color='red')
         elif isinstance(multi_polygon, Polygon):
             x, y = multi_polygon.exterior.xy
-            ax.plot(x, y)
+            ax.plot(x, y, color='red')  
         plt.show()
 
     return multi_polygon
 
-def generate_points(polygon, num_points=100, mode='random', debug=False, theta=None):
+def generate_points(polygon, svg_height=16257, svg_width=16257, num_points=100, mode='random', debug=False, theta=None):
     minx, miny, maxx, maxy = polygon.bounds
     points = []
 
@@ -67,13 +70,13 @@ def generate_points(polygon, num_points=100, mode='random', debug=False, theta=N
     
     elif mode == 'grid':
         # Define the number of points in the x and y directions
-        nx, ny = (5, 10)
+        nx, ny = (10, 25)
         x = np.linspace(minx, maxx, nx)
         y = np.linspace(miny, maxy, ny)
     
         # Generate points with a smaller random offset for each coordinate
-        points = [(xi + (np.random.rand() - 0.01) * (maxx - minx) / (nx * 4), 
-                   yi + (np.random.rand() - 0.5) * (maxy - miny) / (ny * 4)) 
+        points = [(xi + (np.random.rand() - 0.01) * (maxx - minx) / (nx * 2), 
+                   yi + (np.random.rand() - 0.5) * (maxy - miny) / (ny * 2)) 
                   for xi in x for yi in y]
             
         # If theta is not provided, generate a random rotation angle
@@ -98,6 +101,8 @@ def generate_points(polygon, num_points=100, mode='random', debug=False, theta=N
 
     if debug:
         fig, ax = plt.subplots()
+        ax.set_ylim(0, svg_height)  # Set the y-axis limits to match the SVG height
+        ax.set_xlim(0, svg_width)  # Set the x-axis limits to a fixed value
         if isinstance(polygon, MultiPolygon):
             for poly in polygon.geoms:
                 ax.plot(*poly.exterior.xy, 'k-')
@@ -109,7 +114,7 @@ def generate_points(polygon, num_points=100, mode='random', debug=False, theta=N
 
     return np.array(points)
 
-def fill_polygon_with_voronoi(polygon, points, plot=False, debug=False, keep_outline=True):
+def fill_polygon_with_voronoi(polygon, points, debug=False, keep_outline=True, svg_height=16257, svg_width=16257):
     
     # Initialize ax
     fig, ax = plt.subplots()
@@ -126,13 +131,19 @@ def fill_polygon_with_voronoi(polygon, points, plot=False, debug=False, keep_out
     # Intersect the Voronoi polygons with the input polygon
     intersection_polygons = [poly.intersection(polygon) for poly in voronoi_polygons]
 
+    # Clean up the polygons before finding the intersection
+    cleaned_polygon = polygon.buffer(0)
+    cleaned_voronoi_polygons = [Polygon(poly.buffer(0).exterior) for poly in voronoi_polygons]
+
     # Remove empty polygons
-    intersection_polygons = [poly for poly in intersection_polygons if not poly.is_empty]
+    intersection_polygons = [poly.intersection(cleaned_polygon) for poly in cleaned_voronoi_polygons]
 
     # Plot the Voronoi diagram if requested
-    if plot or debug:
+    if debug:
         fig, ax = plt.subplots()
-        ax.axis('off')
+        ax.set_ylim(0, svg_height)  # Set the y-axis limits to match the SVG height
+        ax.set_xlim(0, svg_width)  # Set the x-axis limits to a fixed value
+        #ax.axis('off')
         for poly in intersection_polygons:
             if isinstance(poly, Polygon):
                 x, y = poly.exterior.xy
@@ -152,11 +163,7 @@ def fill_polygon_with_voronoi(polygon, points, plot=False, debug=False, keep_out
                 x, y = polygon.exterior.xy
                 ax.plot(x, y, color='red')
 
-        # If in debug mode, plot the lines, points and Voronoi points as well
-        if debug:
-            ax.scatter(*zip(*points), color='b', s=5)  # Smaller points
-            vor_points_coordinates = [(point[0], point[1]) for point in vor.points]
-            ax.scatter(*zip(*vor_points_coordinates), color='g', s=5)  # Smaller points
+        plt.show() 
         
         # Get the current timestamp and format it as a string
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M')
@@ -167,12 +174,10 @@ def fill_polygon_with_voronoi(polygon, points, plot=False, debug=False, keep_out
 
         # Save the figure to a PNG file, prefixed with the timestamp
         plt.savefig(f'images/out/{timestamp}_voronoi.png', format='png')
-
-        #plt.show()  
     
-    return intersection_polygons
+    return polygon, intersection_polygons
 
-def color_voronoi(filename, fill_uncolored=True, min_border_width=0.5, max_border_width=2, output_file='images/out/voronoi_colored.png'):
+def color_voronoi(filename, fill_uncolored=True, min_border_width=0.1, max_border_width=20, output_file='images/out/voronoi_colored.png'):
     # Load the polygon and intersection polygons from the file
     with open(filename, 'rb') as f:
         polygon, intersection_polygons = pickle.load(f)
@@ -280,10 +285,10 @@ def create_and_save_masks_from_png(filename, palette = ['#000000', '#555555', '#
         mask_img = Image.fromarray(mask.astype('uint8') * 255)
 
         # Save the mask image to a new PNG file
-        mask_img.save(f'mask_{color}.png')
+        mask_img.save(f'images/out/mask_{color}.png')
 
-polygon = svg_file_to_polygon('images/in/masque.svg', num_points=50, plot=False, mirror=True)
-points = generate_points(polygon, num_points=100, mode='grid', debug=False, theta=10)
-vor = fill_polygon_with_voronoi(polygon, points=points, plot=True, debug=False)
-color_voronoi('images/out/voronoi.pkl',fill_uncolored=True, min_border_width=0.2, max_border_width=3)
+polygon = svg_file_to_polygon('images/in/masque2.svg', svg_height=16257, svg_width=16257, num_points=50, debug=False)
+points = generate_points(polygon, svg_height=16257, svg_width=16257, num_points=100, mode='grid', debug=False, theta=10)
+polygon, vor = fill_polygon_with_voronoi(polygon, points=points, debug=True)
+color_voronoi('images/out/voronoi.pkl',fill_uncolored=True, min_border_width=0.2, max_border_width=8)
 create_and_save_masks_from_png('images/out/voronoi_colored.png')
