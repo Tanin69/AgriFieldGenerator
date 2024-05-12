@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN"
+              "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="6.4in" height="3.6in"
+     viewBox="0 0 1920 1080">
+  <path id="Chemin_1"
+        fill="none" stroke="black" stroke-width="1"
+        d="M 648.00,538.50
+           C 738.00,408.00 810.00,405.00 877.50,535.50
+             987.00,691.50 967.50,588.00 967.50,588.00" />
+</svg>

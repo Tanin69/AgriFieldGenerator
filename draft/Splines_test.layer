@@ -1,0 +1,23 @@
+SplineShapeEntity {
+ coords 13000 49.563 11000
+ Points {
+  ShapePoint "{614E8868D12D2ED3}" {
+   Position 16 0 33
+   Data {
+    SplinePointData SplinePointData {
+     InTangent 8.336 0 56.975
+     OutTangent 8.336 0 56.975
+    }
+   }
+  }
+  ShapePoint "{614E881660F0A9AD}" {
+   Position 150 0 0
+   Data {
+    SplinePointData SplinePointData {
+     InTangent -10.153 0 -103.389
+     OutTangent -10.153 0 -103.389
+    }
+   }
+  }
+ }
+}
