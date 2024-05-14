@@ -1,3 +1,0 @@
-import processing
-
-# ... code to use the classes ...

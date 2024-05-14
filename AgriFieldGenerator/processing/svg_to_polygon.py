@@ -5,10 +5,11 @@ from shapely.geometry import Polygon, MultiPolygon
 from svg.path import parse_path, Line, CubicBezier, Move
 import matplotlib.pyplot as plt
 
-from .base_class import BaseClass
+from .data_processing_base_class import DataProcessingBaseClass
 
-class SVGToPolygon(BaseClass):
-    def __init__(self, svg_height, svg_width, num_points=50, debug=False):
+class SVGToPolygon(DataProcessingBaseClass):
+    def __init__(self, source_path, save_path, save_data_path, svg_height, svg_width, num_points=50, debug=False):
+        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         self.svg_height = svg_height
         self.svg_width = svg_width
         self.num_points = num_points
@@ -40,20 +41,7 @@ class SVGToPolygon(BaseClass):
 
         # Create a MultiPolygon from all the polygons
         multi_polygon = MultiPolygon(polygons)
+
+        # Save the data and return the MultiPolygon
+        self.save(multi_polygon, 'polygon.pkl', data_file=True)
         return multi_polygon
-
-    def display(self, polygon):
-        fig, ax = plt.subplots()
-        ax.set_ylim(0, self.svg_height)  # Set the y-axis limits to match the SVG height
-        ax.set_xlim(0, self.svg_width)  # Set the x-axis limits to a fixed value
-        if isinstance(polygon, MultiPolygon):
-            for polygon in polygon.geoms:
-                x, y = polygon.exterior.xy
-                ax.plot(x, y, color='red')
-        elif isinstance(polygon, Polygon):
-            x, y = polygon.exterior.xy
-            ax.plot(x, y, color='red')  
-        plt.show()
-
-    def save(self, polygon, filename):
-        pass

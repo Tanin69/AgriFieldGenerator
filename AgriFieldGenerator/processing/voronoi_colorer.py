@@ -1,7 +1,7 @@
-from .base_class import BaseClass
+from .data_processing_base_class import DataProcessingBaseClass
 from PIL import Image
 
-class VoronoiColorer(BaseClass):
+class VoronoiColorer(DataProcessingBaseClass):
     def __init__(self, fill_uncolored=True, min_border_width=0.1, max_border_width=20, output_file='images/out/voronoi_colored.png'):
         self.fill_uncolored = fill_uncolored
         self.min_border_width = min_border_width

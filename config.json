@@ -1,0 +1,11 @@
+{
+    "project_name": "ZoneOuest",
+    "svg_filename": "20240512_zoneOuest.svg",
+    "svg_height": 16257,
+    "svg_width": 16257,
+    "__comment": "Don't modify anything under this line, unless you know what you are doing !",
+    "base_dir": "../work/",
+    "source_dir": "sources/",
+    "save_dir": "saves/",
+    "save_data_dir": "data/"
+}

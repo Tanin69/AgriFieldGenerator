@@ -1,6 +1,6 @@
-from .base_class import BaseClass
+from .data_processing_base_class import DataProcessingBaseClass
 
-class MaskGenerator(BaseClass):
+class MaskGenerator(DataProcessingBaseClass):
     def __init__(self, output_directory='masks/'):
         self.output_directory = output_directory
 
