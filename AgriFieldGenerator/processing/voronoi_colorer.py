@@ -21,7 +21,7 @@ class VoronoiColorer(DataProcessorBaseClass):
                 svg_height,
                 svg_width,
                 min_border_width=0.1,
-                max_border_width=2):
+                max_border_width=5):
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         self.source_path = source_path
         self.save_path = save_path
@@ -62,7 +62,7 @@ class VoronoiColorer(DataProcessorBaseClass):
         color_map = nx.greedy_color(G, strategy=nx.coloring.strategy_connected_sequential_bfs)
 
         # Define a color palette with 4 shades of gray
-        palette = ['#000000', '#555555', '#AAAAAA', '#DDDDDD']
+        palette = ['#3a3e23', '#876d3a', '#76724d', '#362921']
 
         # Color the polygons
         for i, poly in enumerate(self.intersection_polygons):
@@ -106,7 +106,7 @@ class VoronoiColorer(DataProcessorBaseClass):
         self.save(self.colored_polygons, 'colored.pkl', data_file=True)
         return self.colored_polygons
     
-    def display(self):
+    def display(self, display_point=False, display_voronoi=False):
             
         # Fermer les figures existantes
         plt.close('all')
@@ -127,18 +127,20 @@ class VoronoiColorer(DataProcessorBaseClass):
                 x, y = poly.exterior.xy
                 ax.plot(x, y, color='r')
         
-        # Display points          
-        for point in self.points:
-            ax.plot(*point, 'ko', markersize=1)
+        if display_point:
+            # Display points          
+            for point in self.points:
+                ax.plot(*point, 'ko', markersize=1)
             
-        for polygon in self.intersection_polygons:
-            if isinstance(polygon, Polygon):
-                x, y = polygon.exterior.xy
-                ax.plot(x, y, color='b')
-            elif isinstance(polygon, MultiPolygon):
-                for poly in polygon.geoms:
-                    x, y = poly.exterior.xy
+        if display_voronoi:
+            for polygon in self.intersection_polygons:
+                if isinstance(polygon, Polygon):
+                    x, y = polygon.exterior.xy
                     ax.plot(x, y, color='b')
+                elif isinstance(polygon, MultiPolygon):
+                    for poly in polygon.geoms:
+                        x, y = poly.exterior.xy
+                        ax.plot(x, y, color='b')
 
         if self.colored_polygons is None:
             print("Error: self.colored_polygons is None. You need to generate the colored Voronoi first by calling the process() method.")
@@ -147,10 +149,10 @@ class VoronoiColorer(DataProcessorBaseClass):
         for colored_polygon in self.colored_polygons:
             if isinstance(colored_polygon, ColoredPolygon):
                 x, y = colored_polygon.polygon.exterior.xy
-                ax.fill(x, y, color=colored_polygon.color)
+                ax.fill(x, y, color=colored_polygon.color, ec='black', linewidth=colored_polygon.border_width)  # Add linewidth
             elif isinstance(colored_polygon, MultiPolygon):
                 for poly in colored_polygon.polygon.geoms:
                     x, y = poly.exterior.xy
-                    ax.fill(x, y, color=colored_polygon.color)
+                    ax.fill(x, y, color=colored_polygon.color, ec='black', linewidth=colored_polygon.border_width)  # Add linewidth
         
         plt.show()

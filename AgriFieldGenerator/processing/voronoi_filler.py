@@ -63,7 +63,7 @@ class VoronoiFiller(DataProcessorBaseClass):
         self.save(intersection_polygons, 'voronoi.pkl', data_file=True)
         return self.intersection_polygons
     
-    def display(self):
+    def display(self, display_points=False):
 
         # Fermer les figures existantes
         plt.close('all')
@@ -84,10 +84,11 @@ class VoronoiFiller(DataProcessorBaseClass):
                 x, y = poly.exterior.xy
                 ax.plot(x, y, color='r')
         
-        # Display points          
-        for point in self.points:
-            ax.plot(*point, 'ko', markersize=1)
-        
+        # Display points
+        if display_points:
+            for point in self.points:
+                ax.plot(*point, 'ko', markersize=1)
+            
         # Display Voronoi fill
         if self.intersection_polygons is None:
             print("Error: self.intersection_polygons is None. You need to generate the Voronoi fill first by calling the process() method.")

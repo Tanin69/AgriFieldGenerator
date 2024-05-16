@@ -25,7 +25,7 @@ svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height
 polygon = svg_to_polygon.process(svg_path)
 # svg_to_polygon.display()
 points_generator = PointsGenerator(source_path, save_path, save_data_path, svg_height, svg_width, 50)
-points = points_generator.grid_generator()
+points = points_generator.rectangle_generator()
 # points_generator.display()
 voronoi_filler = VoronoiFiller(source_path, save_path, save_data_path, svg_height, svg_width)
 voronoi_filler.process()

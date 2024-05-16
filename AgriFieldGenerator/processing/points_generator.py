@@ -15,12 +15,12 @@ class PointsGenerator(DataProcessorBaseClass):
                  svg_width,
                  num_points,
                  nx=10,
-                 ny=25,
-                 rand_offset_x=0.5,
-                 rand_offset_y=0.5,
-                 rand_step_x=1,
-                 rand_step_y=1,
-                 theta=None):
+                 ny=10,
+                 rand_offset_x=5,
+                 rand_offset_y=5,
+                 rand_step_x=2,
+                 rand_step_y=5,
+                 theta=240):
         
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         
@@ -92,6 +92,32 @@ class PointsGenerator(DataProcessorBaseClass):
         # Apply rotation to each point around the center of the polygon
         self.points = [np.dot(rotation_matrix, np.subtract(point, center)) + center for point in self.points]
         
+        self.save(self.points, 'points.pkl', data_file=True)
+        return self.points
+    
+    def rectangle_generator(self, num_rectangles=10, min_width=1, max_width=5, min_height=1, max_height=5):
+        minx, miny, maxx, maxy = self.polygon.bounds
+        self.points = []
+
+        for _ in range(num_rectangles):
+            # Choose a random location for the bottom left corner of the rectangle
+            x0 = np.random.uniform(minx, maxx)
+            y0 = np.random.uniform(miny, maxy)
+
+            # Choose a random width and height for the rectangle
+            width = np.random.uniform(min_width, max_width)
+            height = np.random.uniform(min_height, max_height)
+
+            # Make sure the rectangle fits within the polygon bounds
+            x1 = min(x0 + width, maxx)
+            y1 = min(y0 + height, maxy)
+
+            # Generate points within the rectangle
+            x = np.linspace(x0, x1, self.nx)
+            y = np.linspace(y0, y1, self.ny)
+            self.points.extend((xi, yi) for xi in x for yi in y)
+
+        # Save the data and return the points
         self.save(self.points, 'points.pkl', data_file=True)
         return self.points
 
