@@ -1,10 +1,10 @@
-from .data_processing_base_class import DataProcessingBaseClass
+from .data_processor_base_class import DataProcessorBaseClass
 
-class MaskGenerator(DataProcessingBaseClass):
+class MaskGenerator(DataProcessorBaseClass):
     def __init__(self, output_directory='masks/'):
         self.output_directory = output_directory
 
-    def transform(self, png_file):
+    def process(self, png_file):
         pass
 
     def display(self, masks):

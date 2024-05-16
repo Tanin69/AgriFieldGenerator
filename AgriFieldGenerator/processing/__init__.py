@@ -1,4 +1,4 @@
-from .data_processing_base_class import DataProcessingBaseClass
+from .data_processor_base_class import DataProcessorBaseClass
 from .mask_generator import MaskGenerator
 from .svg_to_polygon import SVGToPolygon
 from .points_generator import PointsGenerator

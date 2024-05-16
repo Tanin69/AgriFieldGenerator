@@ -20,14 +20,16 @@ source_path = base_dir + project_name + "/" + source_dir
 save_path = base_dir + project_name + "/" + save_dir
 save_data_path = save_path + save_data_dir
 
-
 # launch the party
 svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width)
-polygon = svg_to_polygon.transform(svg_path)
-# svg_to_polygon.display(polygon)
+polygon = svg_to_polygon.process(svg_path)
+# svg_to_polygon.display()
 points_generator = PointsGenerator(source_path, save_path, save_data_path, svg_height, svg_width, 50)
 points = points_generator.grid_generator()
-# points_generator.display(points)
+# points_generator.display()
 voronoi_filler = VoronoiFiller(source_path, save_path, save_data_path, svg_height, svg_width)
-data = voronoi_filler.transform('polygon.pkl', 'points.pkl')
-voronoi_filler.display(data)
+voronoi_filler.process()
+# voronoi_filler.display()
+voronoi_colorer = VoronoiColorer(source_path, save_path, save_data_path, svg_height, svg_width)
+data = voronoi_colorer.process()
+voronoi_colorer.display()
