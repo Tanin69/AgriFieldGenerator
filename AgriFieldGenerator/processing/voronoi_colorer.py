@@ -104,19 +104,24 @@ class VoronoiColorer(DataProcessorBaseClass):
 
         # Save the data and return the colored polygons
         self.save(self.colored_polygons, 'colored.pkl', data_file=True)
+        # Save the result as an image
+        fig, ax = self.display(show=False)
+        fig = plt.gcf()
+        self.save(fig, 'preview.png', dpi=100)
         return self.colored_polygons
     
-    def display(self, display_point=False, display_voronoi=False):
+    def display(self, display_point=False, display_voronoi=False, show=True):
             
         # Fermer les figures existantes
         plt.close('all')
         
         # Create a new figure and axes
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(self.svg_width/100, self.svg_height/100), dpi=100)
         
         # Set the limits of the axes to the SVG dimensions
         ax.set_xlim(0, self.svg_width)
         ax.set_ylim(0, self.svg_height)
+        ax.set_position([0, 0, 1, 1])  # Set the position of the axes to the full figure size
         
         # Display polygon
         if isinstance(self.polygon, Polygon):
@@ -155,4 +160,10 @@ class VoronoiColorer(DataProcessorBaseClass):
                     x, y = poly.exterior.xy
                     ax.fill(x, y, color=colored_polygon.color, ec='black', linewidth=colored_polygon.border_width)  # Add linewidth
         
-        plt.show()
+        ax.axis('off')
+        # ax.set_linewidth(0)
+        
+        if show:
+            plt.show()
+
+        return fig, ax

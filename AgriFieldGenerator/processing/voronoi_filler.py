@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import Voronoi
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon
 
 from .data_processor_base_class import DataProcessorBaseClass
 
