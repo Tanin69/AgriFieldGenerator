@@ -8,7 +8,11 @@ from shapely.geometry import Polygon as ShapelyPolygon
 from .data_processor_base_class import DataProcessorBaseClass
 
 class ColoredPolygon:
-    def __init__(self, coords, color=None, border_width=None):
+    def __init__(self,
+                coords,
+                color=None,
+                border_width=None
+                ):
         self.polygon = ShapelyPolygon(coords)
         self.color = color
         self.border_width = border_width
@@ -20,14 +24,16 @@ class VoronoiColorer(DataProcessorBaseClass):
                 save_data_path,
                 svg_height,
                 svg_width,
-                min_border_width=0.1,
-                max_border_width=5):
+                palette,
+                min_border_width,
+                max_border_width):
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
         self.svg_height = svg_height
         self.svg_width = svg_width
+        self.palette = palette
         self.min_border_width = min_border_width
         self.max_border_width = max_border_width
         self.colored_polygons = None
@@ -62,7 +68,7 @@ class VoronoiColorer(DataProcessorBaseClass):
         color_map = nx.greedy_color(G, strategy=nx.coloring.strategy_connected_sequential_bfs)
 
         # Define a color palette with 4 shades of gray
-        palette = ['#3a3e23', '#876d3a', '#76724d', '#362921']
+        palette = self.palette
 
         # Color the polygons
         for i, poly in enumerate(self.intersection_polygons):

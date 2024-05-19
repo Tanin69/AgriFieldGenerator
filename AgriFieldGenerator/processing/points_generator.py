@@ -14,13 +14,18 @@ class PointsGenerator(DataProcessorBaseClass):
                  svg_height,
                  svg_width,
                  num_points,
-                 nx=10,
-                 ny=10,
-                 rand_offset_x=5,
-                 rand_offset_y=5,
-                 rand_step_x=2,
-                 rand_step_y=5,
-                 theta=240):
+                 nx,
+                 ny,
+                 rand_offset_x,
+                 rand_offset_y,
+                 rand_step_x,
+                 rand_step_y,
+                 angle,
+                 num_rectangles,
+                 min_width,
+                 max_width,
+                 min_height,
+                 max_height):
         
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         
@@ -36,7 +41,12 @@ class PointsGenerator(DataProcessorBaseClass):
         self.rand_offset_y = rand_offset_y
         self.rand_step_x = rand_step_x
         self.rand_step_y = rand_step_y
-        self.theta = theta
+        self.angle = angle
+        self.num_rectangles = num_rectangles
+        self.min_width = min_width
+        self.max_width = max_width
+        self.min_height = min_height
+        self.max_height = max_height
         self.points = None
 
         # Load needed data
@@ -78,13 +88,13 @@ class PointsGenerator(DataProcessorBaseClass):
                    yi + (np.random.rand() - self.rand_offset_y) * (maxy - miny) / (ny * self.rand_step_y)) 
                   for xi in x for yi in y]
             
-        # If theta is not provided, generate a random rotation angle
-        if self.theta is None:
-            self.theta = np.random.rand() * 2 * np.pi
+        # If angle is not provided, generate a random rotation angle
+        if self.angle is None:
+            self.angle = np.random.rand() * 2 * np.pi
 
         # Rotation matrix
-        rotation_matrix = np.array([[np.cos(self.theta), -np.sin(self.theta)], 
-                                    [np.sin(self.theta), np.cos(self.theta)]])
+        rotation_matrix = np.array([[np.cos(self.angle), -np.sin(self.angle)], 
+                                    [np.sin(self.angle), np.cos(self.angle)]])
     
         # Calculate the center of the polygon
         center = [self.polygon.centroid.x, self.polygon.centroid.y]
@@ -95,18 +105,18 @@ class PointsGenerator(DataProcessorBaseClass):
         self.save(self.points, 'points.pkl', data_file=True)
         return self.points
     
-    def rectangle_generator(self, num_rectangles=10, min_width=1, max_width=5, min_height=1, max_height=5):
+    def rectangle_generator(self):
         minx, miny, maxx, maxy = self.polygon.bounds
         self.points = []
 
-        for _ in range(num_rectangles):
+        for _ in range(self.num_rectangles):
             # Choose a random location for the bottom left corner of the rectangle
             x0 = np.random.uniform(minx, maxx)
             y0 = np.random.uniform(miny, maxy)
 
             # Choose a random width and height for the rectangle
-            width = np.random.uniform(min_width, max_width)
-            height = np.random.uniform(min_height, max_height)
+            width = np.random.uniform(self.min_width, self.max_width)
+            height = np.random.uniform(self.min_height, self.max_height)
 
             # Make sure the rectangle fits within the polygon bounds
             x1 = min(x0 + width, maxx)
