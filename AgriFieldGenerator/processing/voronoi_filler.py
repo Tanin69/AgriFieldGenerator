@@ -1,9 +1,11 @@
 import os
+import glob
 
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import Voronoi
 from shapely.geometry import Polygon, MultiPolygon
+from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
 
@@ -24,6 +26,9 @@ class VoronoiFiller(DataProcessorBaseClass):
         self.svg_width = svg_width
         self.intersection_polygons = None
 
+        # we generate a new set of colored polygons, so we need to delete subsequant files
+        glob.glob(self.save_path + '*.png')
+
         # Load needed data
         try:
             self.polygon = self.load('polygon.pkl', data_file=True)
@@ -38,29 +43,32 @@ class VoronoiFiller(DataProcessorBaseClass):
     def process(self):     
 
         # Initialize ax
-        fig, ax = plt.subplots()
-        
+        # fig, ax = plt.subplots()
+        pbar = tqdm(total=7, desc="Generating Voronoi diagram", unit="step")
+
         # Convert points to a 2-D array
         points_array = np.array(self.points)
-    
+        pbar.update(1)
         # Create the Voronoi diagram
         vor = Voronoi(points_array)
-
+        pbar.update(1)
         # Create polygons for each Voronoi region
         voronoi_polygons = [Polygon(vor.vertices[region]) for region in vor.regions if -1 not in region and len(region) > 0]
-
+        pbar.update(1)
         # Intersect the Voronoi polygons with the input polygon
         self.intersection_polygons = [poly.intersection(self.polygon) for poly in voronoi_polygons]
-
+        pbar.update(1)
         # Clean up the polygons before finding the intersection
         cleaned_polygon = self.polygon.buffer(0)
         cleaned_voronoi_polygons = [Polygon(poly.buffer(0).exterior) for poly in voronoi_polygons]
-
+        pbar.update(1)
         # Remove empty polygons
         intersection_polygons = [poly.intersection(cleaned_polygon) for poly in cleaned_voronoi_polygons]
-
+        pbar.update(1)
         # Save the data and return the voronoi polygons
         self.save(intersection_polygons, 'voronoi.pkl', data_file=True)
+        pbar.update(1)
+        pbar.close()
         return self.intersection_polygons
     
     def display(self, display_points=False):

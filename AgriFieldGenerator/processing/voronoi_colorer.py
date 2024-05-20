@@ -1,9 +1,11 @@
+from random import choice, uniform
+
 import matplotlib.pyplot as plt
 import networkx as nx
-from random import choice, uniform
 from shapely.geometry import Polygon, MultiPolygon
 from shapely.ops import unary_union
 from shapely.geometry import Polygon as ShapelyPolygon
+from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
 
@@ -53,23 +55,30 @@ class VoronoiColorer(DataProcessorBaseClass):
 
         # Create a graph
         G = nx.Graph()
-
+        description = "Coloring diagram"
+        description += " " * (26 - len(description))
+        pbar = tqdm(total=9, desc=description, unit="step")
+        
+        pbar.update(1)
         # Add nodes to the graph
         for i, poly in enumerate(self.intersection_polygons):
             G.add_node(i)
 
+        pbar.update(1)
         # Add edges to the graph
         for i, poly1 in enumerate(self.intersection_polygons):
             for j, poly2 in enumerate(self.intersection_polygons):
                 if i != j and poly1.touches(poly2):
                     G.add_edge(i, j)
 
+        pbar.update(1)
         # Color the graph
         color_map = nx.greedy_color(G, strategy=nx.coloring.strategy_connected_sequential_bfs)
 
         # Define a color palette with 4 shades of gray
         palette = self.palette
-
+        
+        pbar.update(1)
         # Color the polygons
         for i, poly in enumerate(self.intersection_polygons):
             color = palette[color_map[i] % len(palette)]  # Get the color from the palette
@@ -84,20 +93,24 @@ class VoronoiColorer(DataProcessorBaseClass):
                     border_width = uniform(self.min_border_width, self.max_border_width) if self.max_border_width > self.min_border_width else self.min_border_width
                     colored_polygon = ColoredPolygon(zip(x, y), color=color, border_width=border_width)
                     self.colored_polygons.append(colored_polygon)  # Add the colored polygon to the list
-              
+        
+        pbar.update(1)      
         # Color the non-colored areas
         colored_area = unary_union([cp.polygon for cp in self.colored_polygons])
 
+        pbar.update(1)
         # Subtract the colored area from the total area to get the non-colored area
         total_area = unary_union(self.polygon)
         non_colored_area = total_area.difference(colored_area)
 
+        pbar.update(1)
         # If the non-colored area is a Polygon, make it into a list
         if isinstance(non_colored_area, Polygon):
             non_colored_area = [non_colored_area]
         elif isinstance(non_colored_area, MultiPolygon):
             non_colored_area = list(non_colored_area.geoms)
 
+        pbar.update(1)
         # Color each non-colored area with a random color from the palette
         for area in non_colored_area:
             color = choice(palette)
@@ -108,12 +121,14 @@ class VoronoiColorer(DataProcessorBaseClass):
             # Add the colored polygon to self.colored_polygons
             self.colored_polygons.append(colored_polygon)    
 
+        pbar.update(1)
         # Save the data and return the colored polygons
         self.save(self.colored_polygons, 'colored.pkl', data_file=True)
         # Save the result as an image
         fig, ax = self.display(show=False)
         fig = plt.gcf()
         self.save(fig, 'preview.png', dpi=100)
+        pbar.close()
         return self.colored_polygons
     
     def display(self, display_point=False, display_voronoi=False, show=True):

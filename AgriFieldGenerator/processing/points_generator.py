@@ -1,8 +1,10 @@
 import os
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Point, Polygon, MultiPolygon
+from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
 
@@ -64,29 +66,41 @@ class PointsGenerator(DataProcessorBaseClass):
     def random_generator(self):
         
         minx, miny, maxx, maxy = self.polygon.bounds
+        # Create a tqdm object with a total
+        description = "Generating points"
+        description += " " * (26 - len(description))
+        pbar = tqdm(total=self.num_points, desc=description, unit="points")
+        minx, miny, maxx, maxy = self.polygon.bounds
         self.points = []
         while len(self.points) < self.num_points:
             pnt = Point(np.random.uniform(minx, maxx), np.random.uniform(miny, maxy))
             if self.polygon.contains(pnt):
                 self.points.append((pnt.x, pnt.y))  # Append as tuple
-        
+                pbar.update(1)
+            
         # Save the data and return the points
         self.save(self.points, 'points.pkl', data_file=True)
         return self.points
     
     def grid_generator(self):
         
+        # Create a tqdm object with a total
+        description = "Generating points"
+        description += " " * (26 - len(description))
+        pbar = tqdm(total=5, desc=description, unit="step")
         minx, miny, maxx, maxy = self.polygon.bounds
 
         # Define the number of points in the x and y directions
         nx, ny = (self.nx, self.ny)
         x = np.linspace(minx, maxx, nx)
         y = np.linspace(miny, maxy, ny)
+        pbar.update(1)
         
         # Generate points with a smaller random offset for each coordinate
         self.points = [(xi + (np.random.rand() - self.rand_offset_x) * (maxx - minx) / (nx * self.rand_step_x), 
                    yi + (np.random.rand() - self.rand_offset_y) * (maxy - miny) / (ny * self.rand_step_y)) 
                   for xi in x for yi in y]
+        pbar.update(1)
             
         # If angle is not provided, generate a random rotation angle
         if self.angle is None:
@@ -95,21 +109,28 @@ class PointsGenerator(DataProcessorBaseClass):
         # Rotation matrix
         rotation_matrix = np.array([[np.cos(self.angle), -np.sin(self.angle)], 
                                     [np.sin(self.angle), np.cos(self.angle)]])
+        pbar.update(1)
     
         # Calculate the center of the polygon
         center = [self.polygon.centroid.x, self.polygon.centroid.y]
         
         # Apply rotation to each point around the center of the polygon
         self.points = [np.dot(rotation_matrix, np.subtract(point, center)) + center for point in self.points]
+        pbar.update(1)
         
         self.save(self.points, 'points.pkl', data_file=True)
+        pbar.update(1)
+        pbar.close()
         return self.points
     
     def rectangle_generator(self):
         minx, miny, maxx, maxy = self.polygon.bounds
         self.points = []
-
-        for _ in range(self.num_rectangles):
+  
+        description = "Generating points"
+        description += " " * (26 - len(description))
+        
+        for _ in tqdm(range(self.num_rectangles), desc=description, unit="rectangle"):
             # Choose a random location for the bottom left corner of the rectangle
             x0 = np.random.uniform(minx, maxx)
             y0 = np.random.uniform(miny, maxy)

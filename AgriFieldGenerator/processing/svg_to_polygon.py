@@ -1,10 +1,12 @@
 import os
+from xml.dom.minidom import parse
 
 import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Polygon, MultiPolygon
 from svg.path import parse_path, Line, CubicBezier, Move
-from xml.dom.minidom import parse
+from tqdm import tqdm
+
 
 from .data_processor_base_class import DataProcessorBaseClass
 
@@ -31,7 +33,9 @@ class SVGToPolygon(DataProcessorBaseClass):
         dom = parse(svg_file)
         path_strings = [path.getAttribute('d') for path in dom.getElementsByTagName('path')]
         polygons = []
-        for path_string in path_strings:
+        description = "Generating main polygon"
+        description += " " * (26 - len(description))
+        for path_string in tqdm(path_strings, desc=description, unit="path"):
             path = parse_path(path_string)
             points = []
             for command in path:

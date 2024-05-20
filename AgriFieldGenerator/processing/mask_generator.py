@@ -1,10 +1,9 @@
 import os
 
 import cv2  
-import matplotlib.pyplot as plt
 import numpy as np
 from PIL import Image
-from shapely.geometry import Polygon
+from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
 
@@ -46,7 +45,9 @@ class MaskGenerator(DataProcessorBaseClass):
         data = np.array(img)
 
         # For each color in the palette
-        for color in palette:
+        description = "Generating masks"
+        description += " " * (26 - len(description))
+        for i, color in tqdm(enumerate(palette), desc=description, total=len(palette)):
             # Remove the '#' from the color string
             color = color.lstrip('#')
 
@@ -70,7 +71,9 @@ class MaskGenerator(DataProcessorBaseClass):
         external_mask_files = [file for key, file in self.enfusion_texture_masks.items() if key != "etm_path"]
     
         # For each color in the palette
-        for i, color in enumerate(self.palette):
+        description = "Merging masks"
+        description += " " * (26 - len(description))
+        for i, color in tqdm(enumerate(self.palette), desc=description, total=len(self.palette)):
         # Remove the '#' from the color string
             color = color.lstrip('#')
         
@@ -103,15 +106,8 @@ class MaskGenerator(DataProcessorBaseClass):
                         # Draw a black polygon on the external mask
                         cv2.fillPoly(external_mask, [polygon], color=0)
 
-                # Display the external mask
-                # plt.imshow(external_mask, cmap='gray')
-                # plt.show()
-
                 # Merge the masks
                 mask = np.where((mask > 0) & (external_mask != 255), 255, external_mask)
-
-                # Clip the values to ensure they stay within the range 0-255
-                # mask = np.clip(mask, 0, 255)
 
                 # Convert the merged mask to an image
                 merged_mask_img = Image.fromarray(mask.astype('uint8'))
@@ -122,6 +118,3 @@ class MaskGenerator(DataProcessorBaseClass):
                 # Save the merged mask image to a new PNG file, named after the external mask with the new suffix
                 merged_mask_img.save(f'{self.save_path}/{external_mask_basename}_AFG_merged{extension}')
                 
-    def display(self, masks):
-        pass
-
