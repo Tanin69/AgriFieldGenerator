@@ -1,0 +1,10 @@
+argparse
+numpy
+matplotlib
+svgwrite
+svgpathtools
+scipy
+shapely
+rasterio
+tqdm
+networkx
