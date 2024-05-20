@@ -3,7 +3,7 @@ from xml.dom.minidom import parse
 
 import matplotlib.pyplot as plt
 import numpy as np
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Point, Polygon, MultiPolygon
 from svg.path import parse_path, Line, CubicBezier, Move
 from tqdm import tqdm
 
@@ -11,13 +11,16 @@ from tqdm import tqdm
 from .data_processor_base_class import DataProcessorBaseClass
 
 class SVGToPolygon(DataProcessorBaseClass):
-    def __init__(self, source_path, save_path, save_data_path, svg_height, svg_width, num_points=50):
+    def __init__(self, source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points):
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
         self.svg_height = svg_height
         self.svg_width = svg_width
+        self.tile_size=tile_size
+        self.tile_step = int(self.tile_size/20)
+        self.num_x_tiles = round(self.svg_width / self.tile_size)
         self.num_points = num_points
         self.multi_polygon = None
 
@@ -77,3 +80,40 @@ class SVGToPolygon(DataProcessorBaseClass):
         else:
             ax.plot(*self.multi_polygon.exterior.xy, 'r-')
         plt.show()
+
+    def get_polygon_tiles(self):
+        # Get the tile indices for each polygon
+        if self.multi_polygon is None:
+            print("Error: self.multi_polygon is None. You need to generate the polygon first by calling the process() method.")
+            return
+        tile_indices = set()
+        """"
+        for i, poly in enumerate(self.multi_polygon.geoms):
+            # Add the exterior tile indices
+            for x, y in poly.exterior.coords:
+                tile_index = self.__get_tile_index(x, y)
+                tile_indices.add(tile_index)
+        """
+        minx, miny, maxx, maxy = self.multi_polygon.bounds
+        for x in range(int(minx), int(maxx) + 1, self.tile_step):
+            for y in range(int(miny), int(maxy) + 1, self.tile_step):
+                point = Point(x, y)
+                if self.multi_polygon.contains(point):
+                    tile_index = self.__get_tile_index(x, y)
+                    tile_indices.add(tile_index)
+        tile_indices = sorted(list(tile_indices))
+        print(f"{len(tile_indices)} tiles could be changed after importing masks in Enfusion. See the file 'polygon_tiles.txt' for the list of tile indices.")
+        # Open the file in write mode
+        with open(self.save_path + "polygon_tiles.txt", 'w') as file:
+            # Write each tile index to the file
+            for tile_index in tile_indices:
+                file.write(f"{tile_index}\n")
+        return tile_indices
+
+    def __get_tile_index(self, x, y):
+        tile_x = x // self.tile_size
+        tile_y = y // self.tile_size
+        tile_index = int(tile_y * self.num_x_tiles + tile_x)
+        return tile_index
+
+

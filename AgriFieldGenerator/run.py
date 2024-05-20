@@ -15,6 +15,7 @@ palette = config['palette']
 svg_filename = config['source_files']['svg_filename']
 svg_height = config['source_files']['svg_height']
 svg_width = config['source_files']['svg_width']
+tile_size = config['source_files']['tile_size']
 base_dir = config['paths']['base_dir']
 source_dir = config['paths']['source_dir']
 save_dir = config['paths']['save_dir']
@@ -53,8 +54,9 @@ parser.add_argument('-d', '--display', action='store_true', help='Display the re
 
 args = parser.parse_args()
 
-svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width)
+svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points)
 svg_to_polygon.process(svg_path)
+svg_to_polygon.get_polygon_tiles()
 
 if args.points:
     points_generator = PointsGenerator(
