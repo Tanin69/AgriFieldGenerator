@@ -1,0 +1,44 @@
+# .gitignore
+
+# Ignore configuration files
+config.json
+
+# Ignore all __pycache__ directories
+__pycache__/
+
+# Ignore all .pyc, .pyo and .pyd files
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore all .log files
+*.log
+
+# Ignore all .csv files
+*.csv
+
+# Ignore all .dat files
+*.dat
+
+# Ignore all .txt files
+*.txt
+
+# Ignore all .env files
+*.env
+
+# Ignore all .sqlite files
+*.sqlite
+
+# Ignore all .DS_Store files
+.DS_Store
+
+# Ignore all .vscode directories
+.vscode/
+
+# Ignore all .idea directories
+.idea/
+
+# Ignore all .pytest_cache directories
+.pytest_cache/
+
+/work

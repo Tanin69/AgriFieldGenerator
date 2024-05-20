@@ -3,7 +3,8 @@
     "source_files": {
         "svg_filename": "20240517_zoneOuest.svg",
         "svg_height": 16257,
-        "svg_width": 16257
+        "svg_width": 16257,
+        "tile_size": 512
     },
     "enfusion_texture_masks": {
         "etm_path": "D:/Dev/0-Enfusion/Terrains/ReforgerSatGenerator/mask_export",
