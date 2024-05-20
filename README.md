@@ -15,6 +15,7 @@ This project requires the following Python libraries :
 - shapely
 - rasterio
 - tqdm
+- networkx
 
 ## Installation
 
@@ -35,6 +36,20 @@ cd AgriFieldGenerator
 ```bash
 pip install -r requirements.txt
 ```
+
+## Configuration
+
+The application is configured using a `config.json` file. Here is a brief explanation of the configuration parameters:
+
+- `project_name`: The name of the project.
+- `source_files`: Contains parameters related to the source SVG file.
+- `enfusion_texture_masks`: Contains parameters related to the texture masks.
+- `palette`: An array of color codes used in the application.
+- `paths`: Contains paths for various directories used in the application.
+- `borders`: Contains parameters related to the borders of the generated fields.
+- `point_generators`: Contains parameters for the different point generators.
+
+For more detailed information about each parameter, please refer to the `config.json` file.
 
 ## Usage
 
