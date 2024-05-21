@@ -128,3 +128,9 @@ Copy your svg file in the sources directory
 Save this file as config.json
 
 ### 4. Launch the script (cf. usage)
+
+For example :
+
+```python
+python run.py -a
+```
