@@ -145,3 +145,10 @@ I've made a tutorial for this (painful) part : see https://docs.google.com/docum
 * [not released] 2024/05/21 : list of potentialy affected tiles of Enfusion terrain exported to save_dir/polygon_tiles.txt
 
 ## Backlog
+
+* Convert Enfusion splines to SVG
+* Use the satellite map as a background image for preview.png
+* Add a display method to show Enfusion tiles on the polygon
+* Error handling for a potential geometry error when processing svg into polygon
+* Take into account the terrain height variations for the generation of points
+
