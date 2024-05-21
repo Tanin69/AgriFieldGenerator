@@ -26,19 +26,19 @@ This project requires the following Python libraries :
 
 ## 2. Installation <a name="installation">
 
-### 1. Clone this repository:
+### a. Clone this repository:
 
 ```bash
 git clone https://github.com/Tanin69/AgriFieldGenerator.git
 ```
 
-### 2. Navigate to the project directory :
+### b. Navigate to the project directory :
 
 ```bash
 cd AgriFieldGenerator
 ```
 
-### 3. Install the required Python libraries :
+### c. Install the required Python libraries :
 
 ```bash
 pip install -r requirements.txt
@@ -54,32 +54,46 @@ python run.py --points --generator random --voronoi
 
 This command will generate points using a random generator and then generate a Voronoi diagram based on these points.
 
-For more information about the available command line arguments, run:
-
 ```bash
-python run.py --help
+usage: run.py [-h] [-p] [-g {random,grid,rectangle}] [-v] [-c] [-m] [-me] [-a] [-d]
+
+Run the AgriFieldGenerator.
+
+options:
+  -h, --help            show this help message and exit
+  -p, --points          Generates points schema.
+  -g {random,grid,rectangle}, --generator {random,grid,rectangle}
+                        Choose the type of point generator.
+  -v, --voronoi         Generates the Voronoi diagram.
+  -c, --colorer         Generates the colored polygons.
+  -m, --mask            Generates the masks.
+  -me, --merge          Merge the masks with Enfusion surface texture masks.
+  -a, --all             Run all the processors.
+  -d, --display         Display the results of executed processors.
 ```
 
 ## 4. Step by step guide <a name="step-by-step-guide">
 
-### 1. Generate the svg file
+### a. Generate the svg file
 
 You need to use an external tool, like GIMP :
--  Load your satellite map in GIMP
--  Make a path to delimit the polygon
--  Export this path to svg file
 
-### 2. Create your work directory structure
+- Load your satellite map in GIMP
+- Make a path to delimit the polygon
+- Export this path to svg file
+
+### b. Create your work directory structure
 
 Somewhere on your computer, create the following structure:
-```
-work/
-    ProjectName/
-        sources/
-```
-Copy your svg file in the sources directory
 
-### 3. Edit the config.json.example file
+- `work/`
+  - `ProjectName/`
+    - `sources/`
+    - `SVGFile.svg`
+
+Copy your svg file in the sources directory (SVGFile.sgv in this example)
+
+### c. Edit the config.json.example file
 
 ```json
 {
@@ -132,9 +146,10 @@ Copy your svg file in the sources directory
     }
 }
 ```
+
 Save this file as config.json
 
-### 4. Launch the script (cf. usage)
+### d. Launch the script ([cf. usage](#usage))
 
 For example :
 
@@ -142,20 +157,19 @@ For example :
 python run.py -a
 ```
 
-### 5. Import your texture masks in Enfusion, and follow the Enfusion process
+### e. Import your texture masks in Enfusion, and follow the Enfusion process
 
 I've made a tutorial for this (painful) part : see https://docs.google.com/document/d/1Ofb3NplPc76hag4b1zzj7Z689JoD68kPY21FDXRLEo4/edit?usp=sharing
 
 ## 5. Changelog <a name="changelog">
 
-* 1.0.0, 2024/05/20 : first release
-* [not released] 2024/05/21 : list of potentialy affected tiles of Enfusion terrain exported to save_dir/polygon_tiles.txt
+- 1.0.0, 2024/05/20 : first release
+- [not released] 2024/05/21 : list of potentialy affected tiles of Enfusion terrain exported to save_dir/polygon_tiles.txt
 
 ## 6. Backlog <a name="backlog">
 
-* Convert Enfusion splines to SVG
-* Use the satellite map as a background image for preview.png
-* Add a display method to show Enfusion tiles on the polygon
-* Error handling for a potential geometry error when processing svg into polygon
-* Take into account the terrain height variations for the generation of points
-
+- Convert Enfusion splines to SVG
+- Use the satellite map as a background image for preview.png
+- Add a display method to show Enfusion tiles on the polygon
+- Error handling for a potential geometry error when processing svg into polygon
+- Take into account the terrain height variations for the generation of points
