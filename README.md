@@ -134,3 +134,14 @@ For example :
 ```python
 python run.py -a
 ```
+
+### 5. Import your texture masks in Enfusion, and follow the Enfusion process
+
+I've made a tutorial for this (painful) part : see https://docs.google.com/document/d/1Ofb3NplPc76hag4b1zzj7Z689JoD68kPY21FDXRLEo4/edit?usp=sharing
+
+## Changelog
+
+* 1.0.0, 2024/05/20 : first release
+* [not released] 2024/05/21 : list of potentialy affected tiles of Enfusion terrain exported to save_dir/polygon_tiles.txt
+
+## Backlog
