@@ -6,8 +6,7 @@
 # landscapes. It allows you to generate texture masks that can be used in the
 # world editor of the Enfusion workshop.
 #
-# It is released under
-# the MIT License. Please see the LICENSE file for details
+# It is released under the MIT License. Please see the LICENSE file for details.
 #
 # Enfusion is a game engine developed by Bohemia Interactive.
 # The Enfusion Workshop is a creation workshop dedicated to the Enfusion engine.
