@@ -80,9 +80,9 @@ Copy your svg file in the sources directory
     "project_name": "YourProjectName",    <- Well... Your project name, named like your ProjectName directory
     "source_files": {
         "svg_filename": "NameOfYourSVGFile.svg", <- Your svg file
-        "svg_height": 16257, <- height of your satmap, must the same as your svg file and your terrain in Enfusion
+        "svg_height": 16257, <- height of your satmap in pixels, must the same as your svg file and your terrain in Enfusion
         "svg_width": 16257,  <- idem, but for the width
-        "tile_size": 512     <- tile size in Enfusion
+        "tile_size": 512     <- tile size in Enfusion in pixels
     },
     "enfusion_texture_masks": {
         "etm_path": "/path/to/your/enfusion/texture/surface/masks", <- Surface texture mask. They must of course have been exported previously via the Enfusion Workbench
