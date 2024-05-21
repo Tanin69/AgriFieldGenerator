@@ -9,7 +9,7 @@ AgriFieldGenerator is a Python application that generates agricultural field dat
 5. [Changelog](#changelog)
 6. [Backlog](#backlog)
 
-## 1. Dependencies
+## 1. Dependencies <a name="dependencies">
 
 This project requires the following Python libraries :
 
@@ -24,7 +24,7 @@ This project requires the following Python libraries :
 - tqdm
 - networkx
 
-## 2. Installation
+## 2. Installation <a name="installation">
 
 ### 1. Clone this repository:
 
@@ -44,7 +44,7 @@ cd AgriFieldGenerator
 pip install -r requirements.txt
 ```
 
-## 3. Usage
+## 3. Usage <a name="usage">
 
 You can run the AgriFieldGenerator with various command line arguments. For example :
 
@@ -60,7 +60,7 @@ For more information about the available command line arguments, run:
 python run.py --help
 ```
 
-## 4. Step by step guide
+## 4. Step by step guide <a name="step-by-step-guide">
 
 ### 1. Generate the svg file
 
@@ -146,12 +146,12 @@ python run.py -a
 
 I've made a tutorial for this (painful) part : see https://docs.google.com/document/d/1Ofb3NplPc76hag4b1zzj7Z689JoD68kPY21FDXRLEo4/edit?usp=sharing
 
-## 5. Changelog
+## 5. Changelog <a name="changelog">
 
 * 1.0.0, 2024/05/20 : first release
 * [not released] 2024/05/21 : list of potentialy affected tiles of Enfusion terrain exported to save_dir/polygon_tiles.txt
 
-## 6. Backlog
+## 6. Backlog ## 5. Changelog <a name="backlog">
 
 * Convert Enfusion splines to SVG
 * Use the satellite map as a background image for preview.png
