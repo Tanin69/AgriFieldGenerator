@@ -85,13 +85,13 @@ Copy your svg file in the sources directory
         "tile_size": 512     <- tile size in Enfusion
     },
     "enfusion_texture_masks": {
-        "etm_path": "/path/to/your/enfusion/texture/surface/masks", <- Enfusion surface texture masks. You must have exported the surface masks
+        "etm_path": "/path/to/your/enfusion/texture/surface/masks", <- Surface texture mask. They must of course have been exported previously via the Enfusion Workbench
         "etm_1": "Crop_Field_01.png", <- First surface mask. Maximum is 4 surface masks. 
         "etm_2": "Crop_Field_02.png", <- Second surface mask
         "etm_3": "ZI_Crop_Field_03.png", <- Third surface mask
         "etm_4": "Grass_02.png" <- Fourth and last surface mask
     },
-    "palette": ["#89723e", "#4f4333", "#7e895e", "#3a4422"], <- RGB color code for the preview. THe first color is for the first surface texture and so on
+    "palette": ["#89723e", "#4f4333", "#7e895e", "#3a4422"], <- RGB color code for the preview. The first color is for the first surface texture and so on
     "borders": {
         "min_border_width":0.1, <- borders between fields. Randomly generated between min and max
         "max_border_width":5
