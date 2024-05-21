@@ -74,7 +74,7 @@ Copy your svg file in the sources directory
 
 ### 3. Edit the config.json.example file
 
-```
+```json
 {
     "work_dir": "/path/to/your/workdir/", <- Path to your work dir
     "project_name": "YourProjectName",    <- Well... Your project name, named like your ProjectName directory
