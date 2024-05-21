@@ -22,7 +22,7 @@ This project requires the following Python libraries :
 ### 1. Clone this repository:
 
 ```bash
-git clone https://github.com/yourusername/AgriFieldGenerator.git
+git clone https://github.com/Tanin69/AgriFieldGenerator.git
 ```
 
 ### 2. Navigate to the project directory :
