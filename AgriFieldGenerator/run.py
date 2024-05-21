@@ -1,3 +1,18 @@
+# Copyright (c) [2024] [Didier ALAIN]
+# Repository: https://github.com/Tanin69/AgriFieldGenerator
+# 
+# The project makes it possible to generate patterns of cultivated fields 
+# reproducing as faithfully as possible the diversity of agricultural 
+# landscapes. It allows you to generate texture masks that can be used in the
+# world editor of the Enfusion workshop.
+#
+# It is released under
+# the MIT License. Please see the LICENSE file for details
+#
+# Enfusion is a game engine developed by Bohemia Interactive.
+# The Enfusion Workshop is a creation workshop dedicated to the Enfusion engine.
+# 
+
 import argparse
 
 import json
@@ -40,8 +55,6 @@ max_width = config['point_generators']['rectangle']['max_width']
 min_height = config['point_generators']['rectangle']['min_height']
 max_height = config['point_generators']['rectangle']['max_height']
 
-# launch the party
-
 parser = argparse.ArgumentParser(description='Run the AgriFieldGenerator.')
 parser.add_argument('-p', '--points', action='store_true', default=False, help='Generates points schema.')
 parser.add_argument('-g', '--generator', choices=['random', 'grid', 'rectangle'], required='-p' in sys.argv or '--points' in sys.argv, default='random', help='Choose the type of point generator.')
@@ -54,6 +67,7 @@ parser.add_argument('-d', '--display', action='store_true', help='Display the re
 
 args = parser.parse_args()
 
+# launch the party
 svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points)
 svg_to_polygon.process(svg_path)
 svg_to_polygon.get_polygon_tiles()

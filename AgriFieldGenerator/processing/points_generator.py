@@ -1,5 +1,19 @@
+# Copyright (c) [2024] [Didier ALAIN]
+# Repository: https://github.com/Tanin69/AgriFieldGenerator
+# 
+# The project makes it possible to generate patterns of cultivated fields 
+# reproducing as faithfully as possible the diversity of agricultural 
+# landscapes. It allows you to generate texture masks that can be used in the
+# world editor of the Enfusion workshop.
+#
+# It is released under
+# the MIT License. Please see the LICENSE file for details
+#
+# Enfusion is a game engine developed by Bohemia Interactive.
+# The Enfusion Workshop is a creation workshop dedicated to the Enfusion engine.
+# 
+
 import os
-import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,6 +23,65 @@ from tqdm import tqdm
 from .data_processor_base_class import DataProcessorBaseClass
 
 class PointsGenerator(DataProcessorBaseClass):
+    """
+    A class used to generate points within a polygon. These points can be 
+    generated randomly, in a grid, or within randomly placed rectangles. 
+    They be used to generate a Voronoi diagram.
+
+    Attributes
+    ----------
+    All the attributes from DataProcessorBaseClass and the following. All values
+    are read from the configuration file, except points.
+
+    svg_height : int
+        The height of the SVG.
+    svg_width : int
+        The width of the SVG.
+    num_points : int
+        Only parameter for the random generator : the number of points to
+        generate. 
+    nx : int
+        Grid generator parameter : the number of points in the x direction for
+        the grid.
+    ny : int
+        Grid generator parameter : the number of points in the y direction for
+        the grid.
+    rand_offset_x : float
+        Grid generator parameter : the random offset in the x direction.
+    rand_offset_y : float
+        Grid generator parameter : the random offset in the y direction.
+    rand_step_x : float
+        Grid generator parameter : the random step size in the x direction.
+    rand_step_y : float
+        Grid generator parameter : the random step size in the y direction.
+    angle : float
+        Grid generator parameter : the rotation angle for the grid.
+    num_rectangles : int
+        Rectangle generator parameter : the number of rectangles to generate for
+        the rectangle generator.
+    min_width : float
+        Rectangle generator parameter : the minimum width of the rectangles.
+    max_width : float
+        Rectangle generator parameter : the maximum width of the rectangles.
+    min_height : float
+        Rectangle generator parameter : the minimum height of the rectangles.
+    max_height : float
+        Rectangle generator parameter : the maximum height of the rectangles.
+    points : list
+        The list of generated points.
+
+    Methods
+    -------
+    random_generator():
+        Generates random points within the polygon.
+    grid_generator():
+        Generates a grid of points within the polygon.
+    rectangle_generator():
+        Generates points within randomly placed rectangles within the polygon.
+    display():
+        Displays the polygon and the generated points.
+    """
+        
     def __init__(self,
                  source_path,
                  save_path,
@@ -57,13 +130,9 @@ class PointsGenerator(DataProcessorBaseClass):
         except FileNotFoundError:
             raise FileNotFoundError("Polygon data is missing. Please run the SVGToPolygon class first!")
 
-        # we generate a new set of points, so we need to delete voronoi.pkl and colored.pkl
-        if os.path.exists(self.save_data_path + 'voronoi.pkl'):
-            os.remove(self.save_data_path + 'voronoi.pkl')
-        if os.path.exists(self.save_data_path + 'colored.pkl'):
-            os.remove(self.save_data_path + 'colored.pkl')
-
     def random_generator(self):
+
+        self.__clean_data()
         
         minx, miny, maxx, maxy = self.polygon.bounds
         # Create a tqdm object with a total
@@ -84,6 +153,8 @@ class PointsGenerator(DataProcessorBaseClass):
     
     def grid_generator(self):
         
+        self.__clean_data()
+
         # Create a tqdm object with a total
         description = "Generating points"
         description += " " * (26 - len(description))
@@ -124,6 +195,7 @@ class PointsGenerator(DataProcessorBaseClass):
         return self.points
     
     def rectangle_generator(self):
+        self.__clean_data()
         minx, miny, maxx, maxy = self.polygon.bounds
         self.points = []
   
@@ -179,3 +251,11 @@ class PointsGenerator(DataProcessorBaseClass):
             ax.plot(*point, 'ko', markersize=1)
         
         plt.show()
+
+    def __clean_data(self):
+        # we generate a new set of points, so we need to delete voronoi.pkl and colored.pkl
+        if os.path.exists(self.save_data_path + 'voronoi.pkl'):
+            os.remove(self.save_data_path + 'voronoi.pkl')
+        if os.path.exists(self.save_data_path + 'colored.pkl'):
+            os.remove(self.save_data_path + 'colored.pkl')
+

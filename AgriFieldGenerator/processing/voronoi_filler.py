@@ -1,3 +1,18 @@
+# Copyright (c) [2024] [Didier ALAIN]
+# Repository: https://github.com/Tanin69/AgriFieldGenerator
+# 
+# The project makes it possible to generate patterns of cultivated fields 
+# reproducing as faithfully as possible the diversity of agricultural 
+# landscapes. It allows you to generate texture masks that can be used in the
+# world editor of the Enfusion workshop.
+#
+# It is released under
+# the MIT License. Please see the LICENSE file for details
+#
+# Enfusion is a game engine developed by Bohemia Interactive.
+# The Enfusion Workshop is a creation workshop dedicated to the Enfusion engine.
+# 
+
 import os
 import glob
 
@@ -36,14 +51,12 @@ class VoronoiFiller(DataProcessorBaseClass):
         except FileNotFoundError:
             raise FileNotFoundError("Polygon or points data are missing. Please run the SVGToPolygon and PointsGenerator classes first!")
         
+    def process(self):     
+
         # We generate a new voronoi diagram, so we need to delete colored.pkl
         if os.path.exists(self.save_data_path + 'colored.pkl'):
             os.remove(self.save_data_path + 'colored.pkl')
 
-    def process(self):     
-
-        # Initialize ax
-        # fig, ax = plt.subplots()
         pbar = tqdm(total=7, desc="Generating Voronoi diagram", unit="step")
 
         # Convert points to a 2-D array

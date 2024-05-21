@@ -1,3 +1,18 @@
+# Copyright (c) [2024] [Didier ALAIN]
+# Repository: https://github.com/Tanin69/AgriFieldGenerator
+# 
+# The project makes it possible to generate patterns of cultivated fields 
+# reproducing as faithfully as possible the diversity of agricultural 
+# landscapes. It allows you to generate texture masks that can be used in the
+# world editor of the Enfusion workshop.
+#
+# It is released under
+# the MIT License. Please see the LICENSE file for details
+#
+# Enfusion is a game engine developed by Bohemia Interactive.
+# The Enfusion Workshop is a creation workshop dedicated to the Enfusion engine.
+# 
+
 import os
 from xml.dom.minidom import parse
 
@@ -24,6 +39,8 @@ class SVGToPolygon(DataProcessorBaseClass):
         self.num_points = num_points
         self.multi_polygon = None
 
+    def process(self, svg_file):
+
         # We generate a new polygon, so we need to delete all the other files
         if os.path.exists(self.save_data_path + 'points.pkl'):
             os.remove(self.save_data_path + 'points.pkl')
@@ -32,7 +49,6 @@ class SVGToPolygon(DataProcessorBaseClass):
         if os.path.exists(self.save_data_path + 'colored.pkl'):
             os.remove(self.save_data_path + 'colored.pkl')
 
-    def process(self, svg_file):
         dom = parse(svg_file)
         path_strings = [path.getAttribute('d') for path in dom.getElementsByTagName('path')]
         polygons = []
@@ -66,6 +82,7 @@ class SVGToPolygon(DataProcessorBaseClass):
         return self.multi_polygon
     
     def display(self):
+        
         if self.multi_polygon is None:
             print("Error: self.multi_polygon is None. You need to generate the polygon first by calling the process() method.")
             return
@@ -82,18 +99,14 @@ class SVGToPolygon(DataProcessorBaseClass):
         plt.show()
 
     def get_polygon_tiles(self):
+        
         # Get the tile indices for each polygon
         if self.multi_polygon is None:
             print("Error: self.multi_polygon is None. You need to generate the polygon first by calling the process() method.")
             return
         tile_indices = set()
-        """"
-        for i, poly in enumerate(self.multi_polygon.geoms):
-            # Add the exterior tile indices
-            for x, y in poly.exterior.coords:
-                tile_index = self.__get_tile_index(x, y)
-                tile_indices.add(tile_index)
-        """
+
+        # Iterate over the tiles in the bounding box of the MultiPolygon
         minx, miny, maxx, maxy = self.multi_polygon.bounds
         for x in range(int(minx), int(maxx) + 1, self.tile_step):
             for y in range(int(miny), int(maxy) + 1, self.tile_step):
@@ -103,7 +116,8 @@ class SVGToPolygon(DataProcessorBaseClass):
                     tile_indices.add(tile_index)
         tile_indices = sorted(list(tile_indices))
         print(f"{len(tile_indices)} tiles could be changed after importing masks in Enfusion. See the file 'polygon_tiles.txt' for the list of tile indices.")
-        # Open the file in write mode
+        
+        # Save the tile indices to a file
         with open(self.save_path + "polygon_tiles.txt", 'w') as file:
             # Write each tile index to the file
             for tile_index in tile_indices:
