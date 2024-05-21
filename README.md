@@ -76,8 +76,8 @@ Copy your svg file in the sources directory
 
 ```
 {
-    "work_dir": "/path/to/your/workdir/", <- Path to your wor dir
-    "project_name": "YourProjectName",    <- Well... Your project name, named like your
+    "work_dir": "/path/to/your/workdir/", <- Path to your work dir
+    "project_name": "YourProjectName",    <- Well... Your project name, named like your ProjectName directory
     "source_files": {
         "svg_filename": "NameOfYourSVGFile.svg", <- Your svg file
         "svg_height": 16257, <- height of your satmap, must the same as your svg file and your terrain in Enfusion
