@@ -54,7 +54,7 @@ python run.py --points --generator random --voronoi
 
 This command will generate points using a random generator and then generate a Voronoi diagram based on these points.
 
-```sh
+```shell
 usage: run.py [-h] [-p] [-g {random,grid,rectangle}] [-v] [-c] [-m] [-me] [-a] [-d]
 
 Run the AgriFieldGenerator.

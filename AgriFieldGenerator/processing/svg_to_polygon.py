@@ -123,6 +123,28 @@ class SVGToPolygon(DataProcessorBaseClass):
                 file.write(f"{tile_index}\n")
         return tile_indices
 
+    # ecrire une méthode qui génère des polylines sur certains cotés des polygones
+    # pour cela il faut générer des points sur les sommets des polygones
+    # puis générer des polylines à partir de ces points
+    # puis les stocker dans un fichier .layer
+    def generate_polyline(self):
+        if self.multi_polygon is None:
+            print("Error: self.multi_polygon is None. You need to generate the polygon first by calling the process() method.")
+            return
+        # Generate points on the vertices of the polygon
+        vertices = []
+        for poly in self.multi_polygon.geoms:
+            for vertex in poly.exterior.coords:
+                vertices.append(vertex)
+        # generate the polylines
+        polylines = []
+        for i in range(len(vertices)-1):
+            polylines.append([vertices[i], vertices[i+1]])
+
+        self.save(vertices, 'polylines.pkl', data_file=True)
+        return vertices
+    
+    
     def __get_tile_index(self, x, y):
         tile_x = x // self.tile_size
         tile_y = y // self.tile_size
