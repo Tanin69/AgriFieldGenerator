@@ -1,14 +1,14 @@
 # Copyright (c) [2024] [Didier ALAIN]
 # Repository: https://github.com/Tanin69/AgriFieldGenerator
 # 
-# The project makes it possible to generate patterns of cultivated fields 
-# reproducing as faithfully as possible the diversity of agricultural 
+# The project makes it possible to generate patterns of large cultivated fields 
+# reproducing as believable as possible the diversity of agricultural 
 # landscapes. It allows you to generate texture masks that can be used in the
 # world editor of the Enfusion Workbench.
 #
 # It is released under the MIT License. Please see the LICENSE file for details.
 #
-# Enfusion is a game engine developed by Bohemia Interactive.
+# Enfusion is a game engine developed by Bohemia Interactive for the Arma game series
 # The Enfusion Workbench is a creation workbench dedicated to the Enfusion engine.
 # 
 
@@ -21,11 +21,64 @@ from shapely.geometry import Point, Polygon, MultiPolygon
 from svg.path import parse_path, Line, CubicBezier, Move
 from tqdm import tqdm
 
-
 from .data_processor_base_class import DataProcessorBaseClass
 
 class SVGToPolygon(DataProcessorBaseClass):
+    """
+    A class used to convert SVG files to polygons.
+
+    Attributes
+    ----------
+    source_path : str
+        The path to the source SVG file.
+    save_path : str
+        The path where the output files will be saved.
+    save_data_path : str
+        The path where the data files will be saved.
+    svg_height : int
+        The height of the SVG file.
+    svg_width : int
+        The width of the SVG file.
+    tile_size : int
+        The size of the tiles.
+    num_points : int
+        The number of points to generate for each line or curve in the SVG file.
+    multi_polygon : MultiPolygon
+        The generated MultiPolygon object.
+
+    Methods
+    -------
+    process(svg_file)
+        Processes the SVG file and generates a MultiPolygon object.
+    display()
+        Displays the generated MultiPolygon object.
+    get_polygon_tiles()
+        Gets the tile indices for each polygon in the MultiPolygon object.
+    _get_tile_index(x, y)
+        Gets the tile index for a given point.
+    """
+
     def __init__(self, source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points):
+        """
+        Constructs all the necessary attributes for the SVGToPolygon object.
+
+        Parameters
+        ----------
+        source_path : str
+            The path to the source SVG file.
+        save_path : str
+            The path where the output files will be saved.
+        save_data_path : str
+            The path where the data files will be saved.
+        svg_height : int
+            The height of the SVG file.
+        svg_width : int
+            The width of the SVG file.
+        tile_size : int
+            The size of the tiles.
+        num_points : int
+            The number of points to generate for each line or curve in the SVG file.
+        """
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         self.source_path = source_path
         self.save_path = save_path
@@ -39,7 +92,19 @@ class SVGToPolygon(DataProcessorBaseClass):
         self.multi_polygon = None
 
     def process(self, svg_file):
+        """
+        Processes the SVG file and generates a MultiPolygon object.
 
+        Parameters
+        ----------
+        svg_file : str
+            The path to the SVG file.
+
+        Returns
+        -------
+        MultiPolygon
+            The generated MultiPolygon object.
+        """
         # We generate a new polygon, so we need to delete all the other files
         if os.path.exists(self.save_data_path + 'points.pkl'):
             os.remove(self.save_data_path + 'points.pkl')
@@ -81,6 +146,9 @@ class SVGToPolygon(DataProcessorBaseClass):
         return self.multi_polygon
     
     def display(self):
+        """
+        Displays the generated MultiPolygon object.
+        """
         
         if self.multi_polygon is None:
             print("Error: self.multi_polygon is None. You need to generate the polygon first by calling the process() method.")
@@ -98,6 +166,16 @@ class SVGToPolygon(DataProcessorBaseClass):
         plt.show()
 
     def get_polygon_tiles(self):
+        """
+        Gets the tile indices for each polygon in the MultiPolygon object.
+
+        Returns
+        -------
+        list
+            The list of tile indices.
+        """
+
+        # TODO : get polygons from polygon.pkl and move this method (and private associated methods) to EnfusionUtils
         
         # Get the tile indices for each polygon
         if self.multi_polygon is None:
@@ -111,7 +189,7 @@ class SVGToPolygon(DataProcessorBaseClass):
             for y in range(int(miny), int(maxy) + 1, self.tile_step):
                 point = Point(x, y)
                 if self.multi_polygon.contains(point):
-                    tile_index = self.__get_tile_index(x, y)
+                    tile_index = self._get_tile_index(x, y)
                     tile_indices.add(tile_index)
         tile_indices = sorted(list(tile_indices))
         print(f"{len(tile_indices)} tiles could be changed after importing masks in Enfusion. See the file 'polygon_tiles.txt' for the list of tile indices.")
@@ -122,30 +200,23 @@ class SVGToPolygon(DataProcessorBaseClass):
             for tile_index in tile_indices:
                 file.write(f"{tile_index}\n")
         return tile_indices
+   
+    def _get_tile_index(self, x, y):
+        """
+        Gets the tile index for a given point.
 
-    # ecrire une méthode qui génère des polylines sur certains cotés des polygones
-    # pour cela il faut générer des points sur les sommets des polygones
-    # puis générer des polylines à partir de ces points
-    # puis les stocker dans un fichier .layer
-    def generate_polyline(self):
-        if self.multi_polygon is None:
-            print("Error: self.multi_polygon is None. You need to generate the polygon first by calling the process() method.")
-            return
-        # Generate points on the vertices of the polygon
-        vertices = []
-        for poly in self.multi_polygon.geoms:
-            for vertex in poly.exterior.coords:
-                vertices.append(vertex)
-        # generate the polylines
-        polylines = []
-        for i in range(len(vertices)-1):
-            polylines.append([vertices[i], vertices[i+1]])
+        Parameters
+        ----------
+        x : int
+            The x-coordinate of the point.
+        y : int
+            The y-coordinate of the point.
 
-        self.save(vertices, 'polylines.pkl', data_file=True)
-        return vertices
-    
-    
-    def __get_tile_index(self, x, y):
+        Returns
+        -------
+        int
+            The tile index.
+        """
         tile_x = x // self.tile_size
         tile_y = y // self.tile_size
         tile_index = int(tile_y * self.num_x_tiles + tile_x)

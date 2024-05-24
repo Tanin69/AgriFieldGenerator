@@ -1,14 +1,14 @@
 # Copyright (c) [2024] [Didier ALAIN]
 # Repository: https://github.com/Tanin69/AgriFieldGenerator
 # 
-# The project makes it possible to generate patterns of cultivated fields 
-# reproducing as faithfully as possible the diversity of agricultural 
+# The project makes it possible to generate patterns of large cultivated fields 
+# reproducing as believable as possible the diversity of agricultural 
 # landscapes. It allows you to generate texture masks that can be used in the
 # world editor of the Enfusion Workbench.
 #
 # It is released under the MIT License. Please see the LICENSE file for details.
 #
-# Enfusion is a game engine developed by Bohemia Interactive.
+# Enfusion is a game engine developed by Bohemia Interactive for the Arma game series
 # The Enfusion Workbench is a creation workbench dedicated to the Enfusion engine.
 # 
 
@@ -24,6 +24,28 @@ from tqdm import tqdm
 from .data_processor_base_class import DataProcessorBaseClass
 
 class VoronoiFiller(DataProcessorBaseClass):
+    """
+    A class used to fill a polygon with a Voronoi diagram. The Voronoi diagram is generated from a set of points within the polygon.
+
+    Attributes
+    ----------
+    All the attributes from DataProcessorBaseClass and the following. All values
+    are read from the configuration file, except intersection_polygons.
+
+    svg_height : int
+        The height of the SVG.
+    svg_width : int
+        The width of the SVG.
+    intersection_polygons : list
+        The list of polygons resulting from the intersection of the Voronoi diagram and the input polygon.
+
+    Methods
+    -------
+    process():
+        Generates the Voronoi diagram and intersects it with the input polygon.
+    display(display_points=False):
+        Displays the input polygon, the generated points, and the Voronoi diagram.
+    """
     def __init__(self,
                 source_path,
                 save_path,
@@ -50,7 +72,16 @@ class VoronoiFiller(DataProcessorBaseClass):
         except FileNotFoundError:
             raise FileNotFoundError("Polygon or points data are missing. Please run the SVGToPolygon and PointsGenerator classes first!")
         
-    def process(self):     
+    def process(self):
+        """
+        Generates the Voronoi diagram from the points within the polygon and intersects it with the input polygon. 
+        The resulting polygons are saved in the 'voronoi.pkl' file.
+
+        Returns
+        -------
+        list
+            A list of polygons resulting from the intersection of the Voronoi diagram and the input polygon.
+        """     
 
         # We generate a new voronoi diagram, so we need to delete colored.pkl
         if os.path.exists(self.save_data_path + 'colored.pkl'):
@@ -84,6 +115,15 @@ class VoronoiFiller(DataProcessorBaseClass):
         return self.intersection_polygons
     
     def display(self, display_points=False):
+        """
+        Displays the input polygon, the generated points, and the Voronoi diagram. If the Voronoi diagram has not been generated yet, 
+        an error message is printed.
+
+        Parameters
+        ----------
+        display_points : bool, optional
+            If True, the points used to generate the Voronoi diagram are displayed. Default is False.
+        """
 
         # Fermer les figures existantes
         plt.close('all')

@@ -1,14 +1,14 @@
 # Copyright (c) [2024] [Didier ALAIN]
 # Repository: https://github.com/Tanin69/AgriFieldGenerator
 # 
-# The project makes it possible to generate patterns of cultivated fields 
-# reproducing as faithfully as possible the diversity of agricultural 
+# The project makes it possible to generate patterns of large cultivated fields 
+# reproducing as believable as possible the diversity of agricultural 
 # landscapes. It allows you to generate texture masks that can be used in the
 # world editor of the Enfusion Workbench.
 #
 # It is released under the MIT License. Please see the LICENSE file for details.
 #
-# Enfusion is a game engine developed by Bohemia Interactive.
+# Enfusion is a game engine developed by Bohemia Interactive for the Arma game series
 # The Enfusion Workbench is a creation workbench dedicated to the Enfusion engine.
 # 
 
@@ -28,6 +28,32 @@ from .data_processor_base_class import DataProcessorBaseClass
 #  Grass_02.jpg
 
 class MaskGenerator(DataProcessorBaseClass):
+    """
+    A class used to generate masks for different colors in an image.
+
+    Attributes
+    ----------
+    source_path : str
+        The path to the source file.
+    save_path : str
+        The path where the result will be saved.
+    save_data_path : str
+        The path where the data will be saved.
+    svg_height : int
+        The height of the SVG.
+    svg_width : int
+        The width of the SVG.
+    palette : list
+        The color palette to use for coloring.
+    enfusion_texture_masks : dict
+        A dictionary containing the Enfusion texture masks.
+    min_border_width : float
+        The minimum border width.
+    max_border_width : float
+        The maximum border width.
+    colored_polygons : list
+        A list of ColoredPolygon objects.
+    """
     def __init__(self,
             source_path,
             save_path,
@@ -38,6 +64,30 @@ class MaskGenerator(DataProcessorBaseClass):
             enfusion_texture_masks,
             min_border_width=0.1,
             max_border_width=5):
+        """
+        Constructs all the necessary attributes for the MaskGenerator object.
+
+        Parameters
+        ----------
+        source_path : str
+            The path to the source file.
+        save_path : str
+            The path where the result will be saved.
+        save_data_path : str
+            The path where the data will be saved.
+        svg_height : int
+            The height of the SVG.
+        svg_width : int
+            The width of the SVG.
+        palette : list
+            The color palette to use for coloring.
+        enfusion_texture_masks : dict
+            A dictionary containing the Enfusion texture masks.
+        min_border_width : float
+            The minimum border width.
+        max_border_width : float
+            The maximum border width.
+        """
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         self.source_path = source_path
         self.save_path = save_path
@@ -51,6 +101,11 @@ class MaskGenerator(DataProcessorBaseClass):
         self.colored_polygons = None
 
     def process(self):
+        """
+        Processes the image and generates masks for each color in the palette.
+
+        The masks are saved as PNG files in the save path.
+        """
         # Define your fixed color palette
         palette = self.palette
 
@@ -78,6 +133,16 @@ class MaskGenerator(DataProcessorBaseClass):
             mask_img.save(f'{self.save_path}/mask_{color}.png')
 
     def merge_masks(self, reset=True):
+        """
+        Merges the generated masks with external masks.
+
+        Parameters
+        ----------
+        reset : bool, optional
+            Whether to reset the external masks before merging (default is True).
+
+        The merged masks are saved as PNG files in the save path.
+        """
         if self.enfusion_texture_masks is None:
             return
     

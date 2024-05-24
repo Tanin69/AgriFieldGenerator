@@ -1,14 +1,14 @@
 # Copyright (c) [2024] [Didier ALAIN]
 # Repository: https://github.com/Tanin69/AgriFieldGenerator
 # 
-# The project makes it possible to generate patterns of cultivated fields 
-# reproducing as faithfully as possible the diversity of agricultural 
+# The project makes it possible to generate patterns of large cultivated fields 
+# reproducing as believable as possible the diversity of agricultural 
 # landscapes. It allows you to generate texture masks that can be used in the
 # world editor of the Enfusion Workbench.
 #
 # It is released under the MIT License. Please see the LICENSE file for details.
 #
-# Enfusion is a game engine developed by Bohemia Interactive.
+# Enfusion is a game engine developed by Bohemia Interactive for the Arma game series
 # The Enfusion Workbench is a creation workbench dedicated to the Enfusion engine.
 # 
 
@@ -24,6 +24,10 @@ from tqdm import tqdm
 from .data_processor_base_class import DataProcessorBaseClass
 
 class ColoredPolygon:
+    """
+    A class used to represent a colored polygon.
+    """
+    # La classe ShapelyPolygon ne dispose pas de méthode pour ajouter des bordures aux polygones.
     def __init__(self,
                 coords,
                 color=None,
@@ -34,6 +38,31 @@ class ColoredPolygon:
         self.border_width = border_width
 
 class VoronoiColorer(DataProcessorBaseClass):
+    """
+    A class used to color a Voronoi diagram.
+
+    Attributes
+    ----------
+    source_path : str
+        The path to the source file.
+    save_path : str
+        The path where the result will be saved.
+    save_data_path : str
+        The path where the data will be saved.
+    svg_height : int
+        The height of the SVG.
+    svg_width : int
+        The width of the SVG.
+    palette : list
+        The color palette to use for coloring.
+    min_border_width : float
+        The minimum border width.
+    max_border_width : float
+        The maximum border width.
+    colored_polygons : list
+        A list of ColoredPolygon objects.
+    """
+
     def __init__(self,
                 source_path,
                 save_path,
@@ -43,6 +72,28 @@ class VoronoiColorer(DataProcessorBaseClass):
                 palette,
                 min_border_width,
                 max_border_width):
+        """
+        Constructs all the necessary attributes for the VoronoiColorer object.
+
+        Parameters
+        ----------
+        source_path : str
+            The path to the source file.
+        save_path : str
+            The path where the result will be saved.
+        save_data_path : str
+            The path where the data will be saved.
+        svg_height : int
+            The height of the SVG.
+        svg_width : int
+            The width of the SVG.
+        palette : list
+            The color palette to use for coloring.
+        min_border_width : float
+            The minimum border width.
+        max_border_width : float
+            The maximum border width.
+        """
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
         self.source_path = source_path
         self.save_path = save_path
@@ -63,6 +114,14 @@ class VoronoiColorer(DataProcessorBaseClass):
             raise FileNotFoundError("Polygon, points or Voronoi diagram data are missing. Please run the SvgToPolygon, PointsGenerator and VoronoiFiller classes first!")
     
     def process(self):
+        """
+        Processes the Voronoi diagram and colors it.
+
+        Returns
+        -------
+        list
+            A list of ColoredPolygon objects.
+        """
 
         # Create a list to store the colored polygons
         self.colored_polygons = []
@@ -146,6 +205,23 @@ class VoronoiColorer(DataProcessorBaseClass):
         return self.colored_polygons
     
     def display(self, display_point=False, display_voronoi=False, show=True):
+        """
+        Displays the colored Voronoi diagram.
+
+        Parameters
+        ----------
+        display_point : bool, optional
+            Whether to display the points (default is False).
+        display_voronoi : bool, optional
+            Whether to display the Voronoi diagram (default is False).
+        show : bool, optional
+            Whether to show the plot (default is True).
+
+        Returns
+        -------
+        tuple
+            A tuple containing the figure and axes objects.
+        """
             
         # Fermer les figures existantes
         plt.close('all')

@@ -1,14 +1,14 @@
 # Copyright (c) [2024] [Didier ALAIN]
 # Repository: https://github.com/Tanin69/AgriFieldGenerator
 # 
-# The project makes it possible to generate patterns of cultivated fields 
-# reproducing as faithfully as possible the diversity of agricultural 
+# The project makes it possible to generate patterns of large cultivated fields 
+# reproducing as believable as possible the diversity of agricultural 
 # landscapes. It allows you to generate texture masks that can be used in the
 # world editor of the Enfusion Workbench.
 #
 # It is released under the MIT License. Please see the LICENSE file for details.
 #
-# Enfusion is a game engine developed by Bohemia Interactive.
+# Enfusion is a game engine developed by Bohemia Interactive for the Arma game series
 # The Enfusion Workbench is a creation workbench dedicated to the Enfusion engine.
 # 
 
@@ -130,8 +130,17 @@ class PointsGenerator(DataProcessorBaseClass):
             raise FileNotFoundError("Polygon data is missing. Please run the SVGToPolygon class first!")
 
     def random_generator(self):
+        """
+        Generates random points within the polygon. The number of points is determined by the num_points attribute.
+        The points are saved in the 'points.pkl' file.
 
-        self.__clean_data()
+        Returns
+        -------
+        list
+            A list of generated points.
+        """
+
+        self._clean_data()
         
         minx, miny, maxx, maxy = self.polygon.bounds
         # Create a tqdm object with a total
@@ -151,8 +160,17 @@ class PointsGenerator(DataProcessorBaseClass):
         return self.points
     
     def grid_generator(self):
+        """
+        Generates a grid of points within the polygon. The grid parameters are determined by the nx, ny, rand_offset_x, 
+        rand_offset_y, rand_step_x, rand_step_y, and angle attributes. The points are saved in the 'points.pkl' file.
+
+        Returns
+        -------
+        list
+            A list of generated points.
+        """
         
-        self.__clean_data()
+        self._clean_data()
 
         # Create a tqdm object with a total
         description = "Generating points"
@@ -194,7 +212,16 @@ class PointsGenerator(DataProcessorBaseClass):
         return self.points
     
     def rectangle_generator(self):
-        self.__clean_data()
+        """
+        Generates points within randomly placed rectangles within the polygon. The rectangle parameters are determined by 
+        the num_rectangles, min_width, max_width, min_height, and max_height attributes. The points are saved in the 'points.pkl' file.
+
+        Returns
+        -------
+        list
+            A list of generated points.
+        """
+        self._clean_data()
         minx, miny, maxx, maxy = self.polygon.bounds
         self.points = []
   
@@ -224,6 +251,9 @@ class PointsGenerator(DataProcessorBaseClass):
         return self.points
 
     def display(self):
+        """
+        Displays the polygon and the generated points. If the points have not been generated yet, an error message is printed.
+        """
         
         # Create a new figure and axes
         fig, ax = plt.subplots()
@@ -251,7 +281,10 @@ class PointsGenerator(DataProcessorBaseClass):
         
         plt.show()
 
-    def __clean_data(self):
+    def _clean_data(self):
+        """
+        Deletes 'voronoi.pkl' and 'colored.pkl' files if they exist. This method is called before generating a new set of points.
+        """
         # we generate a new set of points, so we need to delete voronoi.pkl and colored.pkl
         if os.path.exists(self.save_data_path + 'voronoi.pkl'):
             os.remove(self.save_data_path + 'voronoi.pkl')

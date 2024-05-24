@@ -1,6 +1,6 @@
 # AgriFieldGenerator
 
-AgriFieldGenerator is a Python application that generates agricultural field data based on various parameters.
+AFG is a python application that allows you to generate large agricultural landscapes for Bohemia's Enfusion engine with little effort. It is based on Voronoi tessellation.
 
 1. [Dependencies](#dependencies)
 2. [Installation](#installation)
@@ -168,6 +168,7 @@ I've made a tutorial for this (painful) part : see https://docs.google.com/docum
 
 ## 6. Backlog <a name="backlog">
 
+- Generate polylines on borders (with random) in Enfusion format
 - Convert Enfusion splines to SVG
 - Use the satellite map as a background image for preview.png
 - Add a display method to show Enfusion tiles on the polygon
