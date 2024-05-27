@@ -164,10 +164,10 @@ I've made a tutorial for this (painful) part : see https://docs.google.com/docum
 
 ## 5. Changelog <a name="changelog">
 
-- 1.0.0, 2024/05/20 : first release
 - 1.1.0, 2024/05/27 :
   - Generate polylines on borders in Enfusion format
   - List of affected tiles after masks import in Enfusion terrain exported to save_dir/polygon_tiles.txt
+- 1.0.0, 2024/05/20 : first release
 
 ## 6. Backlog <a name="backlog">
 
