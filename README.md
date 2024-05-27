@@ -164,11 +164,12 @@ I've made a tutorial for this (painful) part : see https://docs.google.com/docum
 ## 5. Changelog <a name="changelog">
 
 - 1.0.0, 2024/05/20 : first release
-- [not released] 2024/05/21 : list of potentialy affected tiles of Enfusion terrain exported to save_dir/polygon_tiles.txt
+- 1.1.0, 2024/05/27 :
+  - Generate polylines on borders in Enfusion format
+  - List of affected tiles after masks import in Enfusion terrain exported to save_dir/polygon_tiles.txt
 
 ## 6. Backlog <a name="backlog">
 
-- Generate polylines on borders (with random) in Enfusion format
 - Convert Enfusion splines to SVG
 - Use the satellite map as a background image for preview.png
 - Add a display method to show Enfusion tiles on the polygon
