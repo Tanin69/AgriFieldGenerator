@@ -106,13 +106,14 @@ class SVGToPolygon(DataProcessorBaseClass):
             The generated MultiPolygon object.
         """
         # We generate a new polygon, so we need to delete all the other files
+        """
         if os.path.exists(self.save_data_path + 'points.pkl'):
             os.remove(self.save_data_path + 'points.pkl')
         if os.path.exists(self.save_data_path + 'voronoi.pkl'):
             os.remove(self.save_data_path + 'voronoi.pkl')
         if os.path.exists(self.save_data_path + 'colored.pkl'):
             os.remove(self.save_data_path + 'colored.pkl')
-
+        """
         dom = parse(svg_file)
         path_strings = [path.getAttribute('d') for path in dom.getElementsByTagName('path')]
         polygons = []

@@ -18,3 +18,5 @@ from .svg_to_polygon import SVGToPolygon
 from .points_generator import PointsGenerator
 from .voronoi_filler import VoronoiFiller
 from .voronoi_colorer import VoronoiColorer
+from .polyline_generator import PolylineGenerator
+from .enfusion_utils import EnfusionUtils

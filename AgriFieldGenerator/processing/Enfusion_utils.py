@@ -1,37 +1,3 @@
-# Cette classe génère des entités Enfusion pour pouvoir les placer dans le monde.
-# Elle génère des entités de type Bushlines, Bushes, Trees, Rocks.
-# Pour cela, elle convertit des polylines en entités polylines codées au format Enfusion.
-# Les polylines sont générées à partir du fichier voronoi.pkl qui contient les polygones de Voronoi.
-# Dans Enfusion, les layers sont stockés dans un fichier .layer.
-# Chaque layer sur lequel nous allons travailler contient des entités de type polylines
-# La structure d'un tel layer est la suivante:
-
-#PolylineShapeEntity {
-# coords 13483.974 49.563 10852.328
-# Points {
-#  ShapePoint "{616C606ECBF07F54}" {
-#   Position 0 -0.001 0
-#  }
-#  ShapePoint "{616C606ECBF02835}" {
-#   Position 54.939 -0.001 22.584
-#  }
-#  ShapePoint "{616C606EC6E64EE6}" {
-#   Position 111.907 0.001 12.167
-#  }
-#  ShapePoint "{616C606EC7F3DF46}" {
-#   Position 119.026 0.001 -13.614
-#  }
-#  ShapePoint "{616C606EC4F33F76}" {
-#   Position 204.852 -0.001 21.232
-#  }
-# }
-#}
-# coords sont les coordonnées du premier point de la polyline dans un système de coordonnées global.
-# Points sont les points de la polyline. Chaque point est défini par un ShapePoint.
-# Position est la position du point par rapport au point d'origine de la polyline.
-
-# Nous allons d'abord écrire une fonction qui génère une entité de type polylines pour chaque polygone de Voronoi.
-
 import random
 
 class EnfusionUtils():
@@ -69,9 +35,6 @@ class EnfusionUtils():
 
         # Join the entity lines into a single string
         entity_str = '\n'.join(entity)
-
-        # Print the entity string to the console
-        print(entity_str)
 
         return entity_str
 

@@ -62,6 +62,7 @@ parser.add_argument('-v', '--voronoi', action='store_true', default=False, help=
 parser.add_argument('-c', '--colorer', action='store_true', default=False, help='Generates the colored polygons.')
 parser.add_argument('-m', '--mask', action='store_true', default=False, help='Generates the masks.')
 parser.add_argument('-me', '--merge', action='store_true', help='Merge the masks with Enfusion surface texture masks.')
+parser.add_argument('-pl', '--polyline', action='store_true', help='Generate polylines between polygons.')
 parser.add_argument('-a', '--all', action='store_true', help='Run all the processors.')
 parser.add_argument('-d', '--display', action='store_true', help='Display the results of executed processors.')
 
@@ -105,7 +106,7 @@ if args.voronoi:
     voronoi_filler.process()
 
 if args.colorer:
-    voronoi_colorer = VoronoiColorer(source_path, save_path, save_data_path, svg_height, svg_width, palette, min_border_width, max_border_width)
+    voronoi_colorer = VoronoiColorer(project_name, source_path, save_path, save_data_path, svg_height, svg_width, palette, min_border_width, max_border_width)
     voronoi_colorer.process()
 
 if args.mask:
@@ -115,6 +116,10 @@ if args.mask:
 if args.merge:
     mask_generator = MaskGenerator(source_path, save_path, save_data_path, svg_height, svg_width, palette, enfusion_texture_masks)
     mask_generator.merge_masks()
+    
+if args.polyline:
+    polyline_generator = PolylineGenerator(svg_height, save_path, save_data_path)
+    polyline_generator.generate_polylines()
 
 if args.all:
     points_generator = PointsGenerator(
@@ -140,11 +145,12 @@ if args.all:
     points_generator.random_generator()
     voronoi_filler = VoronoiFiller(source_path, save_path, save_data_path, svg_height, svg_width)
     voronoi_filler.process()
-    voronoi_colorer = VoronoiColorer(source_path, save_path, save_data_path, svg_height, svg_width, palette, min_border_width, max_border_width)
+    voronoi_colorer = VoronoiColorer(project_name, source_path, save_path, save_data_path, svg_height, svg_width, palette, min_border_width, max_border_width)
     voronoi_colorer.process()
     mask_generator = MaskGenerator(source_path, save_path, save_data_path, svg_height, svg_width, palette, enfusion_texture_masks)
     mask_generator.process()
     mask_generator.merge_masks()
+    mask_generator.generate_enfusion_polylines()
 
 if args.display:
     if args.points:

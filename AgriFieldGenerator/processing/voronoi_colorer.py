@@ -12,6 +12,8 @@
 # The Enfusion Workbench is a creation workbench dedicated to the Enfusion engine.
 # 
 
+from math import sqrt
+import os
 from random import choice, uniform
 
 import matplotlib.pyplot as plt
@@ -22,10 +24,11 @@ from shapely.geometry import Polygon as ShapelyPolygon
 from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
+from .enfusion_utils import EnfusionUtils
 
 class ColoredPolygon:
     """
-    A class used to represent a colored polygon.
+    A class used to represent a colored polygon with borders.
     """
     # La classe ShapelyPolygon ne dispose pas de méthode pour ajouter des bordures aux polygones.
     def __init__(self,
@@ -64,6 +67,7 @@ class VoronoiColorer(DataProcessorBaseClass):
     """
 
     def __init__(self,
+                project_name,
                 source_path,
                 save_path,
                 save_data_path,
@@ -95,6 +99,7 @@ class VoronoiColorer(DataProcessorBaseClass):
             The maximum border width.
         """
         super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
+        self.project_name = project_name
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
@@ -104,6 +109,7 @@ class VoronoiColorer(DataProcessorBaseClass):
         self.min_border_width = min_border_width
         self.max_border_width = max_border_width
         self.colored_polygons = None
+        self.polylines = []
 
         try:
             # Load needed data
@@ -123,14 +129,15 @@ class VoronoiColorer(DataProcessorBaseClass):
             A list of ColoredPolygon objects.
         """
 
+        description = "Coloring diagram"
+        description += " " * (26 - len(description))
+        pbar = tqdm(total=9, desc=description, unit="step")
+
         # Create a list to store the colored polygons
         self.colored_polygons = []
 
         # Create a graph
         G = nx.Graph()
-        description = "Coloring diagram"
-        description += " " * (26 - len(description))
-        pbar = tqdm(total=9, desc=description, unit="step")
         
         pbar.update(1)
         # Add nodes to the graph
@@ -148,26 +155,31 @@ class VoronoiColorer(DataProcessorBaseClass):
         # Color the graph
         color_map = nx.greedy_color(G, strategy=nx.coloring.strategy_connected_sequential_bfs)
 
-        # Define a color palette with 4 shades of gray
+        # Get the color palette from config
         palette = self.palette
         
         pbar.update(1)
-        # Color the polygons
+
+        # Color the polygons and create the polylines
         for i, poly in enumerate(self.intersection_polygons):
-            color = palette[color_map[i] % len(palette)]  # Get the color from the palette
+            color = palette[color_map[i] % len(palette)]
             if isinstance(poly, Polygon):
                 x, y = poly.exterior.xy
+                # Set border width as a fraction of the minimum distance to another polygon
                 border_width = uniform(self.min_border_width, self.max_border_width) if self.max_border_width > self.min_border_width else self.min_border_width
                 colored_polygon = ColoredPolygon(zip(x, y), color=color, border_width=border_width)
                 self.colored_polygons.append(colored_polygon)  # Add the colored polygon to the list
+                              
             elif isinstance(poly, MultiPolygon):
                 for sub_poly in poly.geoms:
                     x, y = sub_poly.exterior.xy
                     border_width = uniform(self.min_border_width, self.max_border_width) if self.max_border_width > self.min_border_width else self.min_border_width
                     colored_polygon = ColoredPolygon(zip(x, y), color=color, border_width=border_width)
                     self.colored_polygons.append(colored_polygon)  # Add the colored polygon to the list
-        
-        pbar.update(1)      
+
+        pbar.update(1)
+        # Afficher le nombre de polylines générées
+        # print(f"Number of polylines generated: {len(self.polylines)}")      
         # Color the non-colored areas
         colored_area = unary_union([cp.polygon for cp in self.colored_polygons])
 
@@ -201,6 +213,11 @@ class VoronoiColorer(DataProcessorBaseClass):
         fig, ax = self.display(show=False)
         fig = plt.gcf()
         self.save(fig, 'preview.png', dpi=100)
+        # Save the polylines to a .layer file
+        with open(os.path.join(self.save_path, self.project_name + '_polylines.layer'), 'w') as file:
+            for polyline in self.polylines:
+                file.write(str(polyline) + '\n')
+
         pbar.close()
         return self.colored_polygons
     
@@ -269,7 +286,7 @@ class VoronoiColorer(DataProcessorBaseClass):
             elif isinstance(colored_polygon, MultiPolygon):
                 for poly in colored_polygon.polygon.geoms:
                     x, y = poly.exterior.xy
-                    ax.fill(x, y, color=colored_polygon.color, ec='black', linewidth=colored_polygon.border_width)  # Add linewidth
+                    ax.fill(x, y, color=colored_polygon.color, ec='black', linewidth=colored_polygon.border_width)  # Add linewidth 
         
         ax.axis('off')
                 
@@ -277,3 +294,4 @@ class VoronoiColorer(DataProcessorBaseClass):
             plt.show()
 
         return fig, ax
+    
