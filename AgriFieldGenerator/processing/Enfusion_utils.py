@@ -4,7 +4,7 @@ class EnfusionUtils():
     def __init__(self):
         pass
 
-    def generate_enfusion_polyline(self, origin, points):
+    def _generate_enfusion_polyline(self, origin, points):
         """
         Generate a polyline entity in Enfusion format.
         :param origin: The origin point coordinates as a tuple (x, y, z).

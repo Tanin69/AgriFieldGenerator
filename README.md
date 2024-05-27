@@ -112,6 +112,7 @@ Copy your svg file in the sources directory (SVGFile.sgv in this example)
         "etm_3": "ZI_Crop_Field_03.png", <- Third surface mask
         "etm_4": "Grass_02.png" <- Fourth and last surface mask
     },
+    "enfusion_surface_map_resolution": 1.000795, <- Surface map resolution as indicated in Enfusion (see terrain tool, info & diag panel, suface mask section, Resolution)
     "palette": ["#89723e", "#4f4333", "#7e895e", "#3a4422"], <- RGB color code for the preview. The first color is for the first surface texture and so on
     "borders": {
         "min_border_width":0.1, <- borders between fields. Randomly generated between min and max

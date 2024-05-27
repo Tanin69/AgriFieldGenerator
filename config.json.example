@@ -14,6 +14,7 @@
         "etm_3": "ZI_Crop_Field_03.png",
         "etm_4": "Grass_02.png"
     },
+    "enfusion_surface_map_resolution": 1.000795,
     "palette": ["#89723e", "#4f4333", "#7e895e", "#3a4422"],
     "borders": {
         "min_border_width":0.1,

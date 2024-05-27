@@ -1,18 +1,16 @@
+import random
+
 import cv2
 import numpy as np
 from PIL import Image
-from shapely.geometry import Polygon, MultiPolygon
 import pickle
 
-from .enfusion_utils import EnfusionUtils
-
 class PolylineGenerator:
-    def __init__(self, svg_height, save_path, save_data_path):
-        self.svg_height = svg_height
+    def __init__(self, surface_map_resolution, save_path, save_data_path):
+        self.surface_map_resolution = surface_map_resolution
         self.save_path = save_path
         self.save_data_path = save_data_path
         self.colored_polygon = save_data_path + 'colored.pkl'
-        self.enfusion_utils = EnfusionUtils()
 
     def generate_polylines(self):
         """
@@ -31,23 +29,65 @@ class PolylineGenerator:
         with open(self.colored_polygon, 'rb') as f:
             self.polygon = pickle.load(f)
         
-        enfusion_utils = EnfusionUtils()
         polylines = []
         # We need to define an offset because of the surface resolution in Enfusion: terrain coordinates and surface mask coordinates are not the same
-        offset = 1.0079
+        offset = self.surface_map_resolution
         
         for poly in self.polygon:
             x, y = poly.polygon.exterior.xy
             origin = (x[0] * offset, 0, y[0] * offset)
             relative_points = [((x[i] * offset) - origin[0], 0, (y[i] * offset) - (origin[2])) for i in range(1, len(x))]
-            polyline = enfusion_utils.generate_enfusion_polyline(origin, relative_points)
+            polyline = self._generate_enfusion_polyline(origin, relative_points)
             polylines.append(polyline)
 
         # Save the polylines to a file
         with open(self.save_path + 'polylines_colored.layer', 'w') as f:
             f.write('\n'.join(polylines))
+
+        print(f"Generated {len(polylines)} Enfusion polylines for colored polygons (see 'polylines_colored.layer' in the saves directory).")
      
         return polylines
+    
+    def _generate_enfusion_polyline(self, origin, points):
+        """
+        Generate a polyline entity in Enfusion format.
+        :param origin: The origin point coordinates as a tuple (x, y, z).
+        :param points: A list of point coordinates relative to the origin, each as a tuple (x, y, z).
+        :return: A string representing the polyline entity in Enfusion format.
+        """
+        entity = []
+
+        # Add the PolylineShapeEntity with origin coords
+        entity.append('PolylineShapeEntity {')
+        entity.append(' coords {0} {1} {2}'.format(*origin))
+
+        entity.append(' Points {')
+
+        # Add the origin point
+        entity.append('  ShapePoint "{0}" {{'.format(self._generate_random_id()))
+        entity.append('   Position 0 0 0')
+        entity.append('  }')
+
+        # Add the relative points
+        for point in points:
+            entity.append('  ShapePoint "{0}" {{'.format(self._generate_random_id()))
+            entity.append('   Position {0} {1} {2}'.format(*point))
+            entity.append('  }')
+
+        entity.append(' }')
+        entity.append('}')
+
+        # Join the entity lines into a single string
+        entity_str = '\n'.join(entity)
+
+        return entity_str
+
+    def _generate_random_id(self):
+        """
+        Generate a random ID for a ShapePoint.
+        :return: A random ID as a string.
+        """
+        return "{%016X}" % random.randint(0, 2**64-1)
 
         img = Image.open(self.image_path)
         data = np.array(img)

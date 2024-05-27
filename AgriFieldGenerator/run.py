@@ -26,6 +26,7 @@ with open('../config.json') as f:
 # get the configuration values
 project_name = config['project_name']
 enfusion_texture_masks = config['enfusion_texture_masks']
+enfusion_surface_map_resolution = config['enfusion_surface_map_resolution']
 palette = config['palette']
 svg_filename = config['source_files']['svg_filename']
 svg_height = config['source_files']['svg_height']
@@ -56,7 +57,8 @@ min_height = config['point_generators']['rectangle']['min_height']
 max_height = config['point_generators']['rectangle']['max_height']
 
 parser = argparse.ArgumentParser(description='Run the AgriFieldGenerator.')
-parser.add_argument('-p', '--points', action='store_true', default=False, help='Generates points schema.')
+parser.add_argument('-po', '--polygon', action='store_true', default=False, help='Generates the main polygon from svg file.')
+parser.add_argument('-pt', '--points', action='store_true', default=False, help='Generates points schema.')
 parser.add_argument('-g', '--generator', choices=['random', 'grid', 'rectangle'], required='-p' in sys.argv or '--points' in sys.argv, default='random', help='Choose the type of point generator.')
 parser.add_argument('-v', '--voronoi', action='store_true', default=False, help='Generates the Voronoi diagram.')
 parser.add_argument('-c', '--colorer', action='store_true', default=False, help='Generates the colored polygons.')
@@ -69,9 +71,10 @@ parser.add_argument('-d', '--display', action='store_true', help='Display the re
 args = parser.parse_args()
 
 # launch the party
-svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points)
-svg_to_polygon.process(svg_path)
-svg_to_polygon.get_polygon_tiles()
+if args.polygon:
+    svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points)
+    svg_to_polygon.process(svg_path)
+    svg_to_polygon.get_polygon_tiles()
 
 if args.points:
     points_generator = PointsGenerator(
@@ -118,10 +121,13 @@ if args.merge:
     mask_generator.merge_masks()
     
 if args.polyline:
-    polyline_generator = PolylineGenerator(svg_height, save_path, save_data_path)
+    polyline_generator = PolylineGenerator(enfusion_surface_map_resolution, save_path, save_data_path)
     polyline_generator.generate_polylines()
 
 if args.all:
+    svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points)
+    svg_to_polygon.process(svg_path)
+    svg_to_polygon.get_polygon_tiles()
     points_generator = PointsGenerator(
                                        source_path,
                                        save_path,
@@ -147,10 +153,11 @@ if args.all:
     voronoi_filler.process()
     voronoi_colorer = VoronoiColorer(project_name, source_path, save_path, save_data_path, svg_height, svg_width, palette, min_border_width, max_border_width)
     voronoi_colorer.process()
+    polyline_generator = PolylineGenerator(enfusion_surface_map_resolution, save_path, save_data_path)
+    polyline_generator.generate_polylines()
     mask_generator = MaskGenerator(source_path, save_path, save_data_path, svg_height, svg_width, palette, enfusion_texture_masks)
     mask_generator.process()
     mask_generator.merge_masks()
-    mask_generator.generate_enfusion_polylines()
 
 if args.display:
     if args.points:
