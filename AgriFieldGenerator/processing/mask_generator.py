@@ -21,7 +21,6 @@ from skimage import measure
 from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
-from .enfusion_utils import EnfusionUtils
 
 # palette : 
 #  Crop_Field_01.jpg

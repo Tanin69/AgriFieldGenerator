@@ -59,7 +59,7 @@ max_height = config['point_generators']['rectangle']['max_height']
 parser = argparse.ArgumentParser(description='Run the AgriFieldGenerator.')
 parser.add_argument('-po', '--polygon', action='store_true', default=False, help='Generates the main polygon from svg file.')
 parser.add_argument('-pt', '--points', action='store_true', default=False, help='Generates points schema.')
-parser.add_argument('-g', '--generator', choices=['random', 'grid', 'rectangle'], required='-p' in sys.argv or '--points' in sys.argv, default='random', help='Choose the type of point generator.')
+parser.add_argument('-g', '--generator', choices=['random', 'grid', 'rectangle', 'rect_tiling'], required='-pt' in sys.argv or '--points' in sys.argv, default='random', help='Choose the type of point generator.')
 parser.add_argument('-v', '--voronoi', action='store_true', default=False, help='Generates the Voronoi diagram.')
 parser.add_argument('-c', '--colorer', action='store_true', default=False, help='Generates the colored polygons.')
 parser.add_argument('-m', '--mask', action='store_true', default=False, help='Generates the masks.')
@@ -103,6 +103,8 @@ if args.points:
         points_generator.grid_generator()
     elif args.generator == 'rectangle':
         points_generator.rectangle_generator()
+    elif args.generator == 'rect_tiling':
+        points_generator.rectangle_tiling_generator()
     
 if args.voronoi:
     voronoi_filler = VoronoiFiller(source_path, save_path, save_data_path, svg_height, svg_width)

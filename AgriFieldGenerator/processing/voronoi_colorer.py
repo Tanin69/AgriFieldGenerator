@@ -24,7 +24,6 @@ from shapely.geometry import Polygon as ShapelyPolygon
 from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
-from .enfusion_utils import EnfusionUtils
 
 class ColoredPolygon:
     """

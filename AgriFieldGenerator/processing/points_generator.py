@@ -250,6 +250,40 @@ class PointsGenerator(DataProcessorBaseClass):
         self.save(self.points, 'points.pkl', data_file=True)
         return self.points
 
+    def rectangle_tiling_generator(self):
+
+        self.points = []
+
+        description = "Generating points within rectangles..."
+        minx, miny, maxx, maxy = self.polygon.bounds
+
+        x0 = minx
+        y0 = miny
+
+        for _ in tqdm(range(self.num_rectangles), desc=description, unit="rectangle"):
+            # Choose a random width and height for the rectangle
+            width = np.random.uniform(self.min_width, self.max_width)
+            height = np.random.uniform(self.min_height, self.max_height)
+
+            # Make sure the rectangle fits within the polygon bounds
+            x1 = min(x0 + width, maxx)
+            y1 = min(y0 + height, maxy)
+
+            # Generate points within the rectangle
+            x = np.linspace(x0, x1, self.nx)
+            y = np.linspace(y0, y1, self.ny)
+            self.points.extend((xi, yi) for xi in x for yi in y)
+
+            # Move to the next rectangle position
+            x0 = x1
+            if x0 >= maxx:
+                x0 = minx
+                y0 = y1
+
+        # Save the data and return the points
+        self.save(self.points, 'points.pkl', data_file=True)
+        return self.points
+
     def display(self):
         """
         Displays the polygon and the generated points. If the points have not been generated yet, an error message is printed.
