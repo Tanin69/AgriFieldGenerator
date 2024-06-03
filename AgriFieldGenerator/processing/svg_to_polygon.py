@@ -58,7 +58,7 @@ class SVGToPolygon(DataProcessorBaseClass):
         Gets the tile index for a given point.
     """
 
-    def __init__(self, source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points):
+    def __init__(self, source_path, save_path, save_data_path, svg_file_name, svg_height, svg_width, tile_size, num_points):
         """
         Constructs all the necessary attributes for the SVGToPolygon object.
 
@@ -83,6 +83,7 @@ class SVGToPolygon(DataProcessorBaseClass):
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
+        self.svg_file_name = source_path + svg_file_name
         self.svg_height = svg_height
         self.svg_width = svg_width
         self.tile_size=tile_size
@@ -91,7 +92,7 @@ class SVGToPolygon(DataProcessorBaseClass):
         self.num_points = num_points
         self.multi_polygon = None
 
-    def process(self, svg_file):
+    def process(self):
         """
         Processes the SVG file and generates a MultiPolygon object.
 
@@ -114,7 +115,7 @@ class SVGToPolygon(DataProcessorBaseClass):
         if os.path.exists(self.save_data_path + 'colored.pkl'):
             os.remove(self.save_data_path + 'colored.pkl')
         """
-        dom = parse(svg_file)
+        dom = parse(self.svg_file_name)
         path_strings = [path.getAttribute('d') for path in dom.getElementsByTagName('path')]
         polygons = []
         description = "Generating main polygon"

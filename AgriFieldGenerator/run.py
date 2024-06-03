@@ -28,7 +28,8 @@ project_name = config['project_name']
 enfusion_texture_masks = config['enfusion_texture_masks']
 enfusion_surface_map_resolution = config['enfusion_surface_map_resolution']
 palette = config['palette']
-svg_filename = config['source_files']['svg_filename']
+enfusion_spline_layer_file = config['source_files']['enfusion_spline_layer_file']
+svg_file_name = config['source_files']['svg_file_name']
 svg_height = config['source_files']['svg_height']
 svg_width = config['source_files']['svg_width']
 tile_size = config['source_files']['tile_size']
@@ -36,7 +37,7 @@ base_dir = config['work_dir']
 source_dir = config['paths']['source_dir']
 save_dir = config['paths']['save_dir']
 save_data_dir = config['paths']['save_data_dir']
-svg_path = base_dir + project_name + "/" + source_dir + svg_filename
+svg_path = base_dir + project_name + "/" + source_dir + svg_file_name
 source_path = base_dir + project_name + "/" + source_dir
 save_path = base_dir + project_name + "/" + save_dir
 save_data_path = save_path + save_data_dir
@@ -57,6 +58,7 @@ min_height = config['point_generators']['rectangle']['min_height']
 max_height = config['point_generators']['rectangle']['max_height']
 
 parser = argparse.ArgumentParser(description='Run the AgriFieldGenerator.')
+parser.add_argument('-s', '--svg', action='store_true', default=False, help='Generates a svg file from an Enfusion layer file containing spline entities.')
 parser.add_argument('-po', '--polygon', action='store_true', default=False, help='Generates the main polygon from svg file.')
 parser.add_argument('-pt', '--points', action='store_true', default=False, help='Generates points schema.')
 parser.add_argument('-g', '--generator', choices=['random', 'grid', 'rectangle', 'rect_tiling'], required='-pt' in sys.argv or '--points' in sys.argv, default='random', help='Choose the type of point generator.')
@@ -71,9 +73,17 @@ parser.add_argument('-d', '--display', action='store_true', help='Display the re
 args = parser.parse_args()
 
 # launch the party
+
+if args.svg:
+    spline_to_svg = SplineToSVG(svg_file_name, source_path, save_path, save_data_path, svg_height, svg_width, enfusion_surface_map_resolution, enfusion_spline_layer_file)
+    splines = spline_to_svg.parse_spline_file()
+    print(splines)
+    svg_filename = spline_to_svg.hermite_to_bezier(splines)
+    print(svg_filename)
+
 if args.polygon:
-    svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points)
-    svg_to_polygon.process(svg_path)
+    svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_file_name, svg_height, svg_width, tile_size, num_points)
+    svg_to_polygon.process()
     svg_to_polygon.get_polygon_tiles()
 
 if args.points:
@@ -127,8 +137,11 @@ if args.polyline:
     polyline_generator.generate_polylines()
 
 if args.all:
-    svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_height, svg_width, tile_size, num_points)
-    svg_to_polygon.process(svg_path)
+    spline_to_svg = SplineToSVG(svg_file_name, source_path, save_path, save_data_path, svg_height, svg_width, enfusion_surface_map_resolution, enfusion_spline_layer_file)
+    splines = spline_to_svg.parse_spline_file()
+    spline_to_svg.hermite_to_bezier(splines)
+    svg_to_polygon = SVGToPolygon(source_path, save_path, save_data_path, svg_file_name, svg_height, svg_width, tile_size, num_points)
+    svg_to_polygon.process()
     svg_to_polygon.get_polygon_tiles()
     points_generator = PointsGenerator(
                                        source_path,
