@@ -108,7 +108,7 @@ class VoronoiColorer(DataProcessorBaseClass):
         self.min_border_width = min_border_width
         self.max_border_width = max_border_width
         self.colored_polygons = None
-        self.polylines = []
+        # self.polylines = []
 
         try:
             # Load needed data
@@ -177,8 +177,7 @@ class VoronoiColorer(DataProcessorBaseClass):
                     self.colored_polygons.append(colored_polygon)  # Add the colored polygon to the list
 
         pbar.update(1)
-        # Afficher le nombre de polylines générées
-        # print(f"Number of polylines generated: {len(self.polylines)}")      
+  
         # Color the non-colored areas
         colored_area = unary_union([cp.polygon for cp in self.colored_polygons])
 
@@ -212,10 +211,6 @@ class VoronoiColorer(DataProcessorBaseClass):
         fig, ax = self.display(show=False)
         fig = plt.gcf()
         self.save(fig, 'preview.png', dpi=100)
-        # Save the polylines to a .layer file
-        with open(os.path.join(self.save_path, self.project_name + '_polylines.layer'), 'w') as file:
-            for polyline in self.polylines:
-                file.write(str(polyline) + '\n')
 
         pbar.close()
         return self.colored_polygons

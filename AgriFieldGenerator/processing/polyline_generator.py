@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from PIL import Image
 import pickle
+from shapely.geometry import Polygon
 
 class PolylineGenerator:
     def __init__(self, surface_map_resolution, save_path, save_data_path):
@@ -35,6 +36,8 @@ class PolylineGenerator:
         
         for poly in self.polygon:
             x, y = poly.polygon.exterior.xy
+            coords = list(zip(x, y))
+            poly = Polygon(coords).buffer(-2) # We strip the polygon to avoid polylines overlapping
             origin = (x[0] * offset, 0, y[0] * offset)
             relative_points = [((x[i] * offset) - origin[0], 0, (y[i] * offset) - (origin[2])) for i in range(1, len(x))]
             polyline = self._generate_enfusion_polyline(origin, relative_points)
