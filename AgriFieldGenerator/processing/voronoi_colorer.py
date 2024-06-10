@@ -214,7 +214,8 @@ class VoronoiColorer(DataProcessorBaseClass):
 
         pbar.close()
         return self.colored_polygons
-    
+
+        
     def display(self, display_point=False, display_voronoi=False, show=True):
         """
         Displays the colored Voronoi diagram.

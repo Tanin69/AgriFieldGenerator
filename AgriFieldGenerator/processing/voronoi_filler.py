@@ -61,6 +61,8 @@ class VoronoiFiller(DataProcessorBaseClass):
         self.svg_height = svg_height
         self.svg_width = svg_width
         self.intersection_polygons = None
+        self.curved_edges = {}
+        self.curved_polygons = []
 
         # we generate a new set of colored polygons, so we need to delete subsequant files
         glob.glob(self.save_path + '*.png')
@@ -106,14 +108,43 @@ class VoronoiFiller(DataProcessorBaseClass):
         cleaned_voronoi_polygons = [Polygon(poly.buffer(0).exterior) for poly in voronoi_polygons]
         pbar.update(1)
         # Remove empty polygons
-        intersection_polygons = [poly.intersection(cleaned_polygon) for poly in cleaned_voronoi_polygons]
+        self.intersection_polygons = [poly.intersection(cleaned_polygon) for poly in cleaned_voronoi_polygons]
         pbar.update(1)
         # Save the data and return the voronoi polygons
-        self.save(intersection_polygons, 'voronoi.pkl', data_file=True)
+        self.save(self.intersection_polygons, 'voronoi.pkl', data_file=True)
         pbar.update(1)
         pbar.close()
+        print(f"Nombre de polygones générés : {len(self.intersection_polygons)}")
+        return self.intersection_polygons      
+
+    def pp_filter_triangles(self):
+        """
+        Post-processes the result of the process method by removing polygons that are triangles.
+
+        Returns
+        -------
+        list
+            A list of polygons resulting from the intersection of the Voronoi diagram and the input polygon, with triangles removed.
+        """
+        if self.intersection_polygons is None:
+            print("Error: self.intersection_polygons is None. You need to generate the Voronoi fill first by calling the process() method.")
+            return
+
+        non_triangle_polygons = []
+        for polygon in self.intersection_polygons:
+            if isinstance(polygon, Polygon):
+                if len(polygon.exterior.coords) > 4:  # A triangle has 3 points, but the first point is repeated at the end, so we have 4 coordinates
+                    non_triangle_polygons.append(polygon)
+            elif isinstance(polygon, MultiPolygon):
+                for poly in polygon.geoms:
+                    if len(poly.exterior.coords) > 4:
+                        non_triangle_polygons.append(poly)
+
+        self.intersection_polygons = non_triangle_polygons
+        # Save the data and return the voronoi polygons
+        self.save(self.intersection_polygons, 'voronoi.pkl', data_file=True)
         return self.intersection_polygons
-    
+
     def display(self, display_points=False):
         """
         Displays the input polygon, the generated points, and the Voronoi diagram. If the Voronoi diagram has not been generated yet, 
@@ -165,8 +196,3 @@ class VoronoiFiller(DataProcessorBaseClass):
         
         plt.show()
         
-
-        
-    
-
-    

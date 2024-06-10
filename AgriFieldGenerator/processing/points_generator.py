@@ -14,6 +14,7 @@
 
 import os
 
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Point, Polygon, MultiPolygon
@@ -304,6 +305,11 @@ class PointsGenerator(DataProcessorBaseClass):
             for poly in self.polygon.geoms:
                 x, y = poly.exterior.xy
                 ax.plot(x, y, color='r')
+
+        # Display bounding box
+        minx, miny, maxx, maxy = self.polygon.bounds
+        rect = patches.Rectangle((minx, miny), maxx-minx, maxy-miny, linewidth=1, edgecolor='r', facecolor='none')
+        ax.add_patch(rect)
         
         # Display points
         if self.points is None:
