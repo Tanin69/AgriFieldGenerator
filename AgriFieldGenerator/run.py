@@ -63,6 +63,7 @@ parser.add_argument('-po', '--polygon', action='store_true', default=False, help
 parser.add_argument('-pt', '--points', action='store_true', default=False, help='Generates points schema.')
 parser.add_argument('-g', '--generator', choices=['random', 'grid', 'rectangle', 'rect_tiling'], required='-pt' in sys.argv or '--points' in sys.argv, default='random', help='Choose the type of point generator.')
 parser.add_argument('-v', '--voronoi', action='store_true', default=False, help='Generates the Voronoi diagram.')
+parser.add_argument('-pp', '--pp_curve', action='store_true', required='-v' in sys.argv or '--voronoi' in sys.argv, help='Add curves to random borders')
 parser.add_argument('-c', '--colorer', action='store_true', default=False, help='Generates the colored polygons.')
 parser.add_argument('-m', '--mask', action='store_true', default=False, help='Generates the masks.')
 parser.add_argument('-me', '--merge', action='store_true', help='Merge the masks with Enfusion surface texture masks.')
@@ -119,6 +120,10 @@ if args.points:
 if args.voronoi:
     voronoi_filler = VoronoiFiller(source_path, save_path, save_data_path, svg_height, svg_width)
     voronoi_filler.process()
+
+if args.pp_curve:
+    voronoi_filler.pp_filter_triangles
+    voronoi_filler.pp_curve_voronoi_edges()
 
 if args.colorer:
     voronoi_colorer = VoronoiColorer(project_name, source_path, save_path, save_data_path, svg_height, svg_width, palette, min_border_width, max_border_width)

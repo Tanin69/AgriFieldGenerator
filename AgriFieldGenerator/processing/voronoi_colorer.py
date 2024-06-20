@@ -137,13 +137,13 @@ class VoronoiColorer(DataProcessorBaseClass):
 
         # Create a graph
         G = nx.Graph()
-        
         pbar.update(1)
+        
         # Add nodes to the graph
         for i, poly in enumerate(self.intersection_polygons):
             G.add_node(i)
-
         pbar.update(1)
+
         # Add edges to the graph
         for i, poly1 in enumerate(self.intersection_polygons):
             for j, poly2 in enumerate(self.intersection_polygons):
