@@ -47,7 +47,7 @@ class PolylineGenerator:
         with open(self.save_path + 'polylines_colored.layer', 'w') as f:
             f.write('\n'.join(polylines))
 
-        print(f"Generated {len(polylines)} Enfusion polylines for colored polygons (see 'polylines_colored.layer' in the saves directory).")
+        print(f"Generated {len(polylines)} Enfusion polylines for colored polygons.\n(see {self.save_path} polylines_colored.layer file).")
      
         return polylines
     

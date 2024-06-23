@@ -15,9 +15,11 @@
 import os
 
 import matplotlib.figure
+import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import pickle
 from PIL import Image
+from shapely.geometry import MultiPolygon, Polygon
 
 # Increase the maximum image pixels limit beacause Enfusion image files are very large
 Image.MAX_IMAGE_PIXELS = 400000000
@@ -27,7 +29,7 @@ class DataProcessorBaseClass:
     Base class for data processing tasks. Provides methods for loading and saving data, 
     and a method for processing data that should be implemented by subclasses.
     """
-    def __init__(self, source_path, save_path, save_data_path):
+    def __init__(self, source_path, save_path, save_data_path, svg_path, svg_height, svg_width):
         """
         Initializes a new instance of the class. Sets the source, save, and save data directories.
 
@@ -38,6 +40,12 @@ class DataProcessorBaseClass:
         self.source_directory = source_path
         self.save_directory = save_path
         self.save_data_directory = save_data_path
+        self.svg_path = svg_path
+        self.svg_height = svg_height
+        self.svg_width = svg_width
+        self.points = None
+        self.polygon = None
+        self.polygons = None
 
     def process(self):
         """
@@ -88,8 +96,75 @@ class DataProcessorBaseClass:
             else:
                 raise TypeError(f"Unable to save object of type {type(result)}")
 
-    def display(self):
+    def display(self, file_to_display):
         """
-        This method should be implemented by subclasses. It should contain the logic for processing the data.
+       
+
         """
-        raise NotImplementedError("Subclasses should implement this!")
+        try:
+            self.polygon = self.load('polygon.pkl', data_file=True)
+        except FileNotFoundError:
+            raise FileNotFoundError("Polygon data are missing. Please run the relevant generator(s) first.")
+
+        if file_to_display == 'main_polygon':
+            self._plot()
+            return
+
+        if file_to_display == 'seed_points':
+            try:
+                self.points = self.load('points.pkl', data_file=True)
+            except FileNotFoundError:
+                raise FileNotFoundError("Main polygon or seed points data are missing. Please run the relevant generator(s) first.")
+            self._plot(points=True, bounding_box=True)
+            return
+
+        if file_to_display == 'voronoi':
+            try:
+                self.polygons = self.load('voronoi.pkl', data_file=True)
+            except FileNotFoundError:
+                raise FileNotFoundError("Voronoi diagram data are missing. Please run the relevant generator(s) first.")
+            self._plot(polygons=True)
+            return
+
+    def _plot(self, points=False, bounding_box=False, polygons=False):
+        
+        # Create a new figure and axes
+        fig, ax = plt.subplots()
+        
+        # Set the limits of the axes to the SVG dimensions
+        ax.set_xlim(0, self.svg_width)
+        ax.set_ylim(0, self.svg_height)
+        
+        # Display polygon
+        if isinstance(self.polygon, Polygon):
+            x, y = self.polygon.exterior.xy
+            ax.fill(x, y, alpha=0.5, fc='r', ec='none')
+        elif isinstance(self.polygon, MultiPolygon):
+            for poly in self.polygon.geoms:
+                x, y = poly.exterior.xy
+                ax.plot(x, y, color='r')
+
+        if bounding_box:
+            # Display bounding box
+            minx, miny, maxx, maxy = self.polygon.bounds
+            rect = patches.Rectangle((minx, miny), maxx-minx, maxy-miny, linewidth=1, edgecolor='r', facecolor='none')
+            ax.add_patch(rect)
+        
+        if points:    
+            # Display points
+            for point in self.points:
+                ax.plot(*point, 'ko', markersize=1)
+
+        if polygons:
+            for polygon in self.polygons:
+                if isinstance(polygon, Polygon):
+                    x, y = polygon.exterior.xy
+                    ax.plot(x, y, color='b')
+                elif isinstance(polygon, MultiPolygon):
+                    for poly in polygon.geoms:
+                        x, y = poly.exterior.xy
+                        ax.plot(x, y, color='b')
+        
+        plt.show()
+
+

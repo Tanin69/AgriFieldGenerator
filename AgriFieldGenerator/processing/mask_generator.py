@@ -17,7 +17,6 @@ import os
 import cv2  
 import numpy as np
 from PIL import Image
-from skimage import measure
 from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
@@ -59,6 +58,7 @@ class MaskGenerator(DataProcessorBaseClass):
             source_path,
             save_path,
             save_data_path,
+            svg_path,
             svg_height,
             svg_width,
             palette,
@@ -89,12 +89,10 @@ class MaskGenerator(DataProcessorBaseClass):
         max_border_width : float
             The maximum border width.
         """
-        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
+        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path, svg_path=svg_path, svg_height=svg_height, svg_width=svg_width)
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
-        self.svg_height = svg_height
-        self.svg_width = svg_width
         self.palette = palette
         self.enfusion_texture_masks = enfusion_texture_masks
         self.min_border_width = min_border_width
@@ -117,7 +115,7 @@ class MaskGenerator(DataProcessorBaseClass):
         # For each color in the palette
         description = "Generating masks"
         description += " " * (26 - len(description))
-        for i, color in tqdm(enumerate(palette), desc=description, total=len(palette)):
+        for i, color in tqdm(enumerate(palette), desc=description, total=len(palette), unit=" step"):
             # Remove the '#' from the color string
             color = color.lstrip('#')
 
@@ -153,7 +151,7 @@ class MaskGenerator(DataProcessorBaseClass):
         # For each color in the palette
         description = "Merging masks"
         description += " " * (26 - len(description))
-        for i, color in tqdm(enumerate(self.palette), desc=description, total=len(self.palette)):
+        for i, color in tqdm(enumerate(self.palette), desc=description, total=len(self.palette), unit=" step"):
         # Remove the '#' from the color string
             color = color.lstrip('#')
         

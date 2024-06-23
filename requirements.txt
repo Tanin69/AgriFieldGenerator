@@ -1,10 +1,8 @@
-argparse
-numpy
 matplotlib
-svgwrite
-svgpathtools
+numpy
+rasterio
+svg.path
 scipy
 shapely
-rasterio
 tqdm
 networkx

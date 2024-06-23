@@ -12,8 +12,6 @@
 # The Enfusion Workbench is a creation workbench dedicated to the Enfusion engine.
 # 
 
-from math import sqrt
-import os
 from random import choice, uniform
 
 import matplotlib.pyplot as plt
@@ -70,6 +68,7 @@ class VoronoiColorer(DataProcessorBaseClass):
                 source_path,
                 save_path,
                 save_data_path,
+                svg_path,
                 svg_height,
                 svg_width,
                 palette,
@@ -97,18 +96,15 @@ class VoronoiColorer(DataProcessorBaseClass):
         max_border_width : float
             The maximum border width.
         """
-        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
+        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path, svg_path=svg_path, svg_height=svg_height, svg_width=svg_width)
         self.project_name = project_name
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
-        self.svg_height = svg_height
-        self.svg_width = svg_width
         self.palette = palette
         self.min_border_width = min_border_width
         self.max_border_width = max_border_width
         self.colored_polygons = None
-        # self.polylines = []
 
         try:
             # Load needed data
@@ -130,7 +126,7 @@ class VoronoiColorer(DataProcessorBaseClass):
 
         description = "Coloring diagram"
         description += " " * (26 - len(description))
-        pbar = tqdm(total=9, desc=description, unit="step")
+        pbar = tqdm(total=9, desc=description, unit=" step(s)")
 
         # Create a list to store the colored polygons
         self.colored_polygons = []
@@ -214,7 +210,6 @@ class VoronoiColorer(DataProcessorBaseClass):
 
         pbar.close()
         return self.colored_polygons
-
         
     def display(self, display_point=False, display_voronoi=False, show=True):
         """

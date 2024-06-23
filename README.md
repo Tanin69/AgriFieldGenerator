@@ -11,22 +11,11 @@ AFG is a python application that allows you to generate large agricultural lands
 
 ## 1. Dependencies <a name="dependencies">
 
-This project requires the following Python libraries :
-
-- argparse
-- numpy
-- matplotlib
-- svgwrite
-- svgpathtools
-- scipy
-- shapely
-- rasterio
-- tqdm
-- networkx
+See or use requirements.txt
 
 ## 2. Installation <a name="installation">
 
-### a. Clone this repository:
+### a. Clone this repository :
 
 ```bash
 git clone https://github.com/Tanin69/AgriFieldGenerator.git
@@ -55,52 +44,48 @@ python run.py --points --generator random --voronoi
 This command will generate points using a random generator and then generate a Voronoi diagram based on these points.
 
 ```shell
-usage: run.py [-h] [-p] [-g {random,grid,rectangle}] [-v] [-c] [-m] [-me] [-a] [-d]
+usage: run.py [-h] [-s] [-po] [-pt] [-g {random,grid,rectangle,rect_tiling}] [-v] [-pp [[0-1]]] [-c] [-m] [-me] [-pl] [-a] [-d {main_polygon,seed_points,voronoi}]
 
 Run the AgriFieldGenerator.
 
 options:
   -h, --help            show this help message and exit
-  -p, --points          Generates points schema.
+  -s, --svg             Generates a svg file from an Enfusion layer file containing spline entities.
+  -po, --polygon        Generates the main polygon from svg file.
+  -pt, --points         Generates points schema.
   -g {random,grid,rectangle}, --generator {random,grid,rectangle}
                         Choose the type of point generator.
   -v, --voronoi         Generates the Voronoi diagram.
+  -pp [[0-1]], --pp_curve [[0-1]]
+                        Curves some random borders. If passed without a value, defaults to 0.5.
   -c, --colorer         Generates the colored polygons.
   -m, --mask            Generates the masks.
   -me, --merge          Merge the masks with Enfusion surface texture masks.
+  -pl, --polyline       Generate polylines between polygons.
   -a, --all             Run all the processors.
-  -d, --display         Display the results of executed processors.
+  -d {main_polygon,seed_points,voronoi}, --display {main_polygon,seed_points,voronoi}
+                        Display the results of a given processor.
 ```
 
 ## 4. Step by step guide <a name="step-by-step-guide">
 
-### a. Generate the svg file
-
-You need to use an external tool, like GIMP :
-
-- Load your satellite map in GIMP
-- Make a path to delimit the polygon
-- Export this path to svg file
-
-### b. Create your work directory structure
+### a. Create your work directory structure
 
 Somewhere on your computer, create the following structure:
 
 - `work/`
   - `ProjectName/`
     - `sources/`
-    - `SVGFile.svg`
+    - `file.png`
 
-Copy your svg file in the sources directory (SVGFile.sgv in this example)
-
-### c. Edit the config.json.example file
+### b. Edit the config.json.example file
 
 ```json
 {
     "work_dir": "/path/to/your/workdir/", <- Path to your work dir
     "project_name": "YourProjectName",    <- Well... Your project name, named like your ProjectName directory
     "source_files": {
-        "svg_filename": "NameOfYourSVGFile.svg", <- Your svg file
+        "svg_filename": "output.svg", <- Name of the svg file generated from the Enfusion Spline
         "svg_height": 16257, <- height of your svg in pixels, must be the same as your satmap file and your terrain in Enfusion
         "svg_width": 16257,  <- idem, but for the width
         "tile_size": 512     <- tile size in Enfusion in pixels
@@ -164,14 +149,20 @@ I've made a tutorial for this (painful) part : see https://docs.google.com/docum
 
 ## 5. Changelog <a name="changelog">
 
+- 1.2.0, 2024/06/23
+  - Convert Enfusion splines to SVG (new arg to generate svg : -s)
+  - Add curvatures to random borders (new arg to generate curved borders : -pp)
+  - Refactored display method, now called from super class (new arg : -d <plot to display>)
+  - Cleaned imports and updated requirements.txt
+
 - 1.1.0, 2024/05/27 :
   - Generate polylines on borders in Enfusion format
   - List of affected tiles after masks import in Enfusion terrain exported to save_dir/polygon_tiles.txt
+
 - 1.0.0, 2024/05/20 : first release
 
 ## 6. Backlog <a name="backlog">
 
-- Convert Enfusion splines to SVG
 - Use the satellite map as a background image for preview.png
 - Add a display method to show Enfusion tiles on the polygon
 - Error handling for a potential geometry error when processing svg into polygon

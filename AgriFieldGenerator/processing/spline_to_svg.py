@@ -7,14 +7,11 @@ import svgwrite
 from .data_processor_base_class import DataProcessorBaseClass
 
 class SplineToSVG(DataProcessorBaseClass):
-    def __init__(self, svg_file_name, source_path, save_path, save_data_path, svg_height, svg_width, surface_map_resolution, enfusion_spline_layer_file):
-        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
-        self.source_path = source_path
-        self.svg_file_name = source_path + svg_file_name
-        self.source_layer = self.source_path + enfusion_spline_layer_file
+    def __init__(self, source_path, save_path, save_data_path, svg_path, svg_height, svg_width, surface_map_resolution, enfusion_spline_layer_file):
+        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path, svg_path=svg_path, svg_height=svg_height, svg_width=svg_width)
+        self.svg_path = svg_path
+        self.source_layer = source_path + enfusion_spline_layer_file
         self.save_path = save_path
-        self.svg_height = svg_height
-        self.svg_width = svg_width
         self.surface_map_resolution = surface_map_resolution
     
     def parse_spline_file(self):
@@ -74,7 +71,7 @@ class SplineToSVG(DataProcessorBaseClass):
 
     def hermite_to_bezier(self, splines):
         
-        dwg = svgwrite.Drawing(self.svg_file_name , profile='tiny', size=(self.svg_height, self.svg_width))      
+        dwg = svgwrite.Drawing(self.svg_path , profile='tiny', size=(self.svg_height, self.svg_width))      
         for spline in splines:
             points = spline['points'][1:]  # Exclude only the first point
             # Because we use this svg to generate surface masks, we have to divide the spline coordinates by the surface map resolution
@@ -97,6 +94,7 @@ class SplineToSVG(DataProcessorBaseClass):
             dwg.add(path)
 
         dwg.save()
-        return self.svg_file_name
+        print(f"SVG file saved to {self.svg_path}")
+        return self.svg_path
 
 

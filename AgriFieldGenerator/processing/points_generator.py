@@ -14,10 +14,8 @@
 
 import os
 
-import matplotlib.patches as patches
-import matplotlib.pyplot as plt
 import numpy as np
-from shapely.geometry import Point, Polygon, MultiPolygon
+from shapely.geometry import Point
 from tqdm import tqdm
 
 from .data_processor_base_class import DataProcessorBaseClass
@@ -86,6 +84,7 @@ class PointsGenerator(DataProcessorBaseClass):
                  source_path,
                  save_path,
                  save_data_path,
+                 svg_path,
                  svg_height,
                  svg_width,
                  num_points,
@@ -102,13 +101,11 @@ class PointsGenerator(DataProcessorBaseClass):
                  min_height,
                  max_height):
         
-        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
+        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path, svg_path=svg_path, svg_height=svg_height, svg_width=svg_width)
         
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
-        self.svg_height = svg_height
-        self.svg_width = svg_width
         self.num_points = num_points     
         self.nx = nx
         self.ny = ny
@@ -145,9 +142,9 @@ class PointsGenerator(DataProcessorBaseClass):
         
         minx, miny, maxx, maxy = self.polygon.bounds
         # Create a tqdm object with a total
-        description = "Generating points"
+        description = "Generating seed points"
         description += " " * (26 - len(description))
-        pbar = tqdm(total=self.num_points, desc=description, unit="points")
+        pbar = tqdm(total=self.num_points, desc=description, unit=" seed point(s)")
         minx, miny, maxx, maxy = self.polygon.bounds
         self.points = []
         while len(self.points) < self.num_points:
@@ -176,7 +173,7 @@ class PointsGenerator(DataProcessorBaseClass):
         # Create a tqdm object with a total
         description = "Generating points"
         description += " " * (26 - len(description))
-        pbar = tqdm(total=5, desc=description, unit="step")
+        pbar = tqdm(total=5, desc=description, unit=" seed point(s)")
         minx, miny, maxx, maxy = self.polygon.bounds
 
         # Define the number of points in the x and y directions
@@ -229,7 +226,7 @@ class PointsGenerator(DataProcessorBaseClass):
         description = "Generating points"
         description += " " * (26 - len(description))
         
-        for _ in tqdm(range(self.num_rectangles), desc=description, unit="rectangle"):
+        for _ in tqdm(range(self.num_rectangles), desc=description, unit=" seed point(s)"):
             # Choose a random location for the bottom left corner of the rectangle
             x0 = np.random.uniform(minx, maxx)
             y0 = np.random.uniform(miny, maxy)
@@ -261,7 +258,7 @@ class PointsGenerator(DataProcessorBaseClass):
         x0 = minx
         y0 = miny
 
-        for _ in tqdm(range(self.num_rectangles), desc=description, unit="rectangle"):
+        for _ in tqdm(range(self.num_rectangles), desc=description, unit=" seed point(s)"):
             # Choose a random width and height for the rectangle
             width = np.random.uniform(self.min_width, self.max_width)
             height = np.random.uniform(self.min_height, self.max_height)
@@ -284,42 +281,6 @@ class PointsGenerator(DataProcessorBaseClass):
         # Save the data and return the points
         self.save(self.points, 'points.pkl', data_file=True)
         return self.points
-
-    def display(self):
-        """
-        Displays the polygon and the generated points. If the points have not been generated yet, an error message is printed.
-        """
-        
-        # Create a new figure and axes
-        fig, ax = plt.subplots()
-        
-        # Set the limits of the axes to the SVG dimensions
-        ax.set_xlim(0, self.svg_width)
-        ax.set_ylim(0, self.svg_height)
-        
-        # Display polygon
-        if isinstance(self.polygon, Polygon):
-            x, y = self.polygon.exterior.xy
-            ax.fill(x, y, alpha=0.5, fc='r', ec='none')
-        elif isinstance(self.polygon, MultiPolygon):
-            for poly in self.polygon.geoms:
-                x, y = poly.exterior.xy
-                ax.plot(x, y, color='r')
-
-        # Display bounding box
-        minx, miny, maxx, maxy = self.polygon.bounds
-        rect = patches.Rectangle((minx, miny), maxx-minx, maxy-miny, linewidth=1, edgecolor='r', facecolor='none')
-        ax.add_patch(rect)
-        
-        # Display points
-        if self.points is None:
-            print("Error: self.points is None. You need to generate points first by calling one of the *_generator() method.")
-            return
-            
-        for point in self.points:
-            ax.plot(*point, 'ko', markersize=1)
-        
-        plt.show()
 
     def _clean_data(self):
         """

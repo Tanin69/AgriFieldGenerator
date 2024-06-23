@@ -16,7 +16,6 @@ import os
 import glob
 import random
 
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial import Voronoi
 from shapely.geometry import LineString, Point, Polygon, MultiPolygon
@@ -52,16 +51,13 @@ class VoronoiFiller(DataProcessorBaseClass):
                 source_path,
                 save_path,
                 save_data_path,
+                svg_path,
                 svg_height,
                 svg_width):
-        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
+        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path, svg_path=svg_path, svg_height=svg_height, svg_width=svg_width)
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
-        self.svg_height = svg_height
-        self.svg_width = svg_width
-        self.svg_height = svg_height
-        self.svg_width = svg_width
         self.intersection_polygons = None
         self.curved_edges = {}
         self.curved_polygons = []
@@ -91,7 +87,7 @@ class VoronoiFiller(DataProcessorBaseClass):
         # We generate a new voronoi diagram, so we need to delete colored.pkl
         if os.path.exists(self.save_data_path + 'colored.pkl'):
             os.remove(self.save_data_path + 'colored.pkl')
-        pbar = tqdm(total=7, desc="Generating Voronoi diagram", unit="step")
+        pbar = tqdm(total=7, desc="Generating Voronoi diagram", unit=" step")
         # Convert points to a 2-D array
         points_array = np.array(self.points)
         pbar.update(1)
@@ -160,7 +156,6 @@ class VoronoiFiller(DataProcessorBaseClass):
             raise FileNotFoundError("Voronoi data is missing. Please run the process method of VoronoiFiller class first!")
         
         curved_polygons = []
-        print(f"Number of polygons before curving borders: {len(voronoi_polygons)}")
         
         for polygon in voronoi_polygons:
             if isinstance(polygon, MultiPolygon):
@@ -168,7 +163,6 @@ class VoronoiFiller(DataProcessorBaseClass):
                     curved_polygons.append(self._curve_polygon_edges_random(poly, curve_probability))
             else:
                 curved_polygons.append(self._curve_polygon_edges_random(polygon, curve_probability))
-        print(f"Number of polygons after curving borders: {len(curved_polygons)}")
         self.curved_polygons = curved_polygons
         curved_polygons = self._clean_edges()
         # tranform the list of LineString to polygons
@@ -177,57 +171,6 @@ class VoronoiFiller(DataProcessorBaseClass):
         self.curved_polygons = polygon_objects
         self.save(self.curved_polygons, 'voronoi.pkl', data_file=True)
         return self.curved_polygons
-
-    def display(self, display_points=False):
-        """
-        Displays the input polygon, the generated points, and the Voronoi diagram. If the Voronoi diagram has not been generated yet, 
-        an error message is printed.
-
-        Parameters
-        ----------
-        display_points : bool, optional
-            If True, the points used to generate the Voronoi diagram are displayed. Default is False.
-        """
-
-        # Fermer les figures existantes
-        plt.close('all')
-
-        # Create a new figure and axes
-        fig, ax = plt.subplots()
-        
-        # Set the limits of the axes to the SVG dimensions
-        ax.set_xlim(0, self.svg_width)
-        ax.set_ylim(0, self.svg_height)
-        
-        # Display polygon
-        if isinstance(self.polygon, Polygon):
-            x, y = self.polygon.exterior.xy
-            ax.fill(x, y, alpha=0.5, fc='r', ec='none')
-        elif isinstance(self.polygon, MultiPolygon):
-            for poly in self.polygon.geoms:
-                x, y = poly.exterior.xy
-                ax.plot(x, y, color='r')
-        
-        # Display points
-        if display_points:
-            for point in self.points:
-                ax.plot(*point, 'ko', markersize=1)
-            
-        # Display Voronoi fill
-        if self.intersection_polygons is None:
-            print("Error: self.intersection_polygons is None. You need to generate the Voronoi fill first by calling the process() method.")
-            return
-        
-        for polygon in self.curved_polygons:
-            if isinstance(polygon, Polygon):
-                x, y = polygon.exterior.xy
-                ax.plot(x, y, color='b')
-            elif isinstance(polygon, MultiPolygon):
-                for poly in polygon.geoms:
-                    x, y = poly.exterior.xy
-                    ax.plot(x, y, color='b')
-        
-        plt.show()  
 
     def _curve_polygon_edges_random(self, polygon, curve_probability):
         curved_polygon_edges = []
@@ -321,7 +264,11 @@ class VoronoiFiller(DataProcessorBaseClass):
         return None
 
     def _clean_edges(self):   
-        for curved_poly in tqdm(list(self.curved_polygons), desc="Cleaning borders", unit="polygon"):
+        
+        description = "Cleaning borders"
+        description += " " * (26 - len(description))
+        
+        for curved_poly in tqdm(list(self.curved_polygons), desc=description, unit=" polygon(s)"):
             for edge in list(curved_poly):
                 if len(edge.coords) > 2:
                     # If the edge is a curve

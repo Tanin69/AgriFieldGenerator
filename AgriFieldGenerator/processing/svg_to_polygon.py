@@ -12,10 +12,8 @@
 # The Enfusion Workbench is a creation workbench dedicated to the Enfusion engine.
 # 
 
-import os
 from xml.dom.minidom import parse
 
-import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import Point, Polygon, MultiPolygon
 from svg.path import parse_path, Line, CubicBezier, Move
@@ -58,7 +56,7 @@ class SVGToPolygon(DataProcessorBaseClass):
         Gets the tile index for a given point.
     """
 
-    def __init__(self, source_path, save_path, save_data_path, svg_file_name, svg_height, svg_width, tile_size, num_points):
+    def __init__(self, source_path, save_path, save_data_path, svg_path, svg_height, svg_width, tile_size, num_points):
         """
         Constructs all the necessary attributes for the SVGToPolygon object.
 
@@ -79,11 +77,11 @@ class SVGToPolygon(DataProcessorBaseClass):
         num_points : int
             The number of points to generate for each line or curve in the SVG file.
         """
-        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path)
+        super().__init__(source_path=source_path, save_path=save_path, save_data_path=save_data_path, svg_path=svg_path, svg_height=svg_height, svg_width=svg_width)
         self.source_path = source_path
         self.save_path = save_path
         self.save_data_path = save_data_path
-        self.svg_file_name = source_path + svg_file_name
+        self.svg_path = svg_path
         self.svg_height = svg_height
         self.svg_width = svg_width
         self.tile_size=tile_size
@@ -115,12 +113,12 @@ class SVGToPolygon(DataProcessorBaseClass):
         if os.path.exists(self.save_data_path + 'colored.pkl'):
             os.remove(self.save_data_path + 'colored.pkl')
         """
-        dom = parse(self.svg_file_name)
+        dom = parse(self.svg_path)
         path_strings = [path.getAttribute('d') for path in dom.getElementsByTagName('path')]
         polygons = []
         description = "Generating main polygon"
         description += " " * (26 - len(description))
-        for path_string in tqdm(path_strings, desc=description, unit="path"):
+        for path_string in tqdm(path_strings, desc=description, unit=" path"):
             path = parse_path(path_string)
             points = []
             for command in path:
@@ -145,28 +143,9 @@ class SVGToPolygon(DataProcessorBaseClass):
 
         # Save the data and return the MultiPolygon
         self.save(self.multi_polygon, 'polygon.pkl', data_file=True)
+        # print(f"The main polygon data has been saved to {self.save_data_path}polygon.pkl.")
         return self.multi_polygon
     
-    def display(self):
-        """
-        Displays the generated MultiPolygon object.
-        """
-        
-        if self.multi_polygon is None:
-            print("Error: self.multi_polygon is None. You need to generate the polygon first by calling the process() method.")
-            return
-    
-        # Plot the polygon
-        fig, ax = plt.subplots()
-        ax.set_ylim(0, self.svg_height)  # Set the y-axis limits to match the SVG height
-        ax.set_xlim(0, self.svg_width)  # Set the x-axis limits to a fixed value
-        if isinstance(self.multi_polygon, MultiPolygon):
-            for poly in self.multi_polygon.geoms:
-                ax.plot(*poly.exterior.xy, 'r-')
-        else:
-            ax.plot(*self.multi_polygon.exterior.xy, 'r-')
-        plt.show()
-
     def get_polygon_tiles(self):
         """
         Gets the tile indices for each polygon in the MultiPolygon object.
@@ -194,13 +173,14 @@ class SVGToPolygon(DataProcessorBaseClass):
                     tile_index = self._get_tile_index(x, y)
                     tile_indices.add(tile_index)
         tile_indices = sorted(list(tile_indices))
-        print(f"{len(tile_indices)} tiles could be changed after importing masks in Enfusion. See the file 'polygon_tiles.txt' for the list of tile indices.")
-        
+                
         # Save the tile indices to a file
         with open(self.save_path + "polygon_tiles.txt", 'w') as file:
             # Write each tile index to the file
             for tile_index in tile_indices:
                 file.write(f"{tile_index}\n")
+        
+        print(f"{len(tile_indices)} tiles could be changed after importing masks in Enfusion.\nFor the list of tile indices, see {self.save_path + "polygon_tiles.txt"}")
         return tile_indices
    
     def _get_tile_index(self, x, y):
